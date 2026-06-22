@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { logout } from "@/lib/actions/auth";
+import { getDashboardSummary } from "@/lib/services/dashboard.service";
 import { getCurrentUserBusiness } from "@/lib/services/business.service";
 import { formatCurrency } from "@/lib/utils/format";
 
@@ -14,12 +16,7 @@ export default async function DashboardPage() {
     redirect("/onboarding/business");
   }
 
-  const summary = {
-    income: 8500000,
-    expense: 5200000,
-    profit: 3300000,
-    lowStock: 3,
-  };
+  const summary = await getDashboardSummary(business.id);
 
   return (
     <main className="min-h-screen bg-slate-100 px-6 py-8">
@@ -56,21 +53,21 @@ export default async function DashboardPage() {
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Pemasukan</p>
+            <p className="text-sm text-slate-500">Pemasukan Bulan Ini</p>
             <p className="mt-2 text-2xl font-bold text-slate-950">
               {formatCurrency(summary.income)}
             </p>
           </div>
 
           <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Pengeluaran</p>
+            <p className="text-sm text-slate-500">Pengeluaran Bulan Ini</p>
             <p className="mt-2 text-2xl font-bold text-slate-950">
               {formatCurrency(summary.expense)}
             </p>
           </div>
 
           <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Estimasi Laba</p>
+            <p className="text-sm text-slate-500">Estimasi Laba Bulan Ini</p>
             <p className="mt-2 text-2xl font-bold text-slate-950">
               {formatCurrency(summary.profit)}
             </p>
@@ -84,51 +81,91 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-bold text-slate-950">
-            Profil Usaha Aktif
-          </h2>
+        <div className="mt-8 grid gap-6 lg:grid-cols-3">
+          <div className="rounded-2xl bg-white p-6 shadow-sm lg:col-span-2">
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="text-lg font-bold text-slate-950">
+                Transaksi Terbaru
+              </h2>
 
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <div>
-              <p className="text-sm text-slate-500">Nama Usaha</p>
-              <p className="mt-1 font-semibold text-slate-950">
-                {business.name}
-              </p>
+              <Link
+                href="/transactions"
+                className="text-sm font-semibold text-emerald-700 hover:text-emerald-800"
+              >
+                Lihat semua
+              </Link>
             </div>
 
-            <div>
-              <p className="text-sm text-slate-500">Jenis Usaha</p>
-              <p className="mt-1 font-semibold text-slate-950">
-                {business.business_type}
-              </p>
-            </div>
+            {summary.recentTransactions.length === 0 ? (
+              <div className="mt-6 rounded-xl border border-dashed border-slate-200 p-6 text-center">
+                <p className="font-semibold text-slate-950">
+                  Belum ada transaksi.
+                </p>
+                <p className="mt-2 text-sm text-slate-600">
+                  Mulai catat pemasukan atau pengeluaran pertama kamu.
+                </p>
+                <Link
+                  href="/transactions/new"
+                  className="mt-4 inline-flex rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600"
+                >
+                  Tambah Transaksi
+                </Link>
+              </div>
+            ) : (
+              <div className="mt-4 divide-y divide-slate-100">
+                {summary.recentTransactions.map((transaction) => {
+                  const isIncome = transaction.type === "income";
 
-            <div>
-              <p className="text-sm text-slate-500">Mata Uang</p>
-              <p className="mt-1 font-semibold text-slate-950">
-                {business.currency}
-              </p>
-            </div>
+                  return (
+                    <div
+                      key={transaction.id}
+                      className="flex items-center justify-between gap-4 py-4"
+                    >
+                      <div>
+                        <p className="font-semibold text-slate-950">
+                          {transaction.description || "Tanpa deskripsi"}
+                        </p>
+                        <p className="mt-1 text-sm text-slate-500">
+                          {transaction.transaction_date}
+                        </p>
+                      </div>
 
-            <div>
-              <p className="text-sm text-slate-500">Lokasi</p>
-              <p className="mt-1 font-semibold text-slate-950">
-                {business.location || "-"}
-              </p>
+                      <p
+                        className={`font-bold ${
+                          isIncome ? "text-emerald-700" : "text-red-700"
+                        }`}
+                      >
+                        {isIncome ? "+" : "-"}
+                        {formatCurrency(Number(transaction.amount))}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-2xl bg-white p-6 shadow-sm">
+            <h2 className="text-lg font-bold text-slate-950">
+              Aksi Cepat
+            </h2>
+
+            <div className="mt-4 space-y-3">
+              <Link
+                href="/transactions/new"
+                className="block rounded-xl bg-emerald-500 px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-emerald-600"
+              >
+                Tambah Transaksi
+              </Link>
+
+              <Link
+                href="/transactions"
+                className="block rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
+                Lihat Transaksi
+              </Link>
             </div>
           </div>
-        </div>
-
-        <div className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-6">
-          <h2 className="text-lg font-bold text-amber-950">
-            Status Implementasi
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-amber-900">
-            Profil usaha sudah terhubung ke Supabase. Data dashboard masih
-            memakai dummy data dan akan dihubungkan ke transaksi pada step
-            berikutnya.
-          </p>
         </div>
       </section>
     </main>

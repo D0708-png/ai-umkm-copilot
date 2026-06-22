@@ -178,6 +178,13 @@ export default async function DashboardPage() {
 >
   Kelola Stok
 </Link>
+
+<Link
+  href="/reports/profit"
+  className="block rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+>
+  Lihat Laporan
+</Link>
             </div>
           </div>
         </div>

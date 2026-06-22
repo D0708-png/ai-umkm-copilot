@@ -185,6 +185,13 @@ export default async function DashboardPage() {
 >
   Lihat Laporan
 </Link>
+
+<Link
+  href="/assistant"
+  className="block rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+>
+  Tanya AI Assistant
+</Link>
             </div>
           </div>
         </div>

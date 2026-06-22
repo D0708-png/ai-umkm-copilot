@@ -1,17 +1,17 @@
 import { redirect } from "next/navigation";
 import { logout } from "@/lib/actions/auth";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentUserBusiness } from "@/lib/services/business.service";
 import { formatCurrency } from "@/lib/utils/format";
 
 export default async function DashboardPage() {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, business } = await getCurrentUserBusiness();
 
   if (!user) {
     redirect("/login?message=Silakan login terlebih dahulu.");
+  }
+
+  if (!business) {
+    redirect("/onboarding/business");
   }
 
   const summary = {
@@ -33,7 +33,11 @@ export default async function DashboardPage() {
               Dashboard
             </h1>
             <p className="mt-2 text-slate-600">
-              Ringkasan bisnis bulan ini.
+              Ringkasan bisnis bulan ini untuk{" "}
+              <span className="font-semibold text-slate-950">
+                {business.name}
+              </span>
+              .
             </p>
             <p className="mt-2 text-sm text-slate-500">
               Login sebagai: {user.email}
@@ -82,11 +86,47 @@ export default async function DashboardPage() {
 
         <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
           <h2 className="text-lg font-bold text-slate-950">
+            Profil Usaha Aktif
+          </h2>
+
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <div>
+              <p className="text-sm text-slate-500">Nama Usaha</p>
+              <p className="mt-1 font-semibold text-slate-950">
+                {business.name}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-sm text-slate-500">Jenis Usaha</p>
+              <p className="mt-1 font-semibold text-slate-950">
+                {business.business_type}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-sm text-slate-500">Mata Uang</p>
+              <p className="mt-1 font-semibold text-slate-950">
+                {business.currency}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-sm text-slate-500">Lokasi</p>
+              <p className="mt-1 font-semibold text-slate-950">
+                {business.location || "-"}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-6">
+          <h2 className="text-lg font-bold text-amber-950">
             Status Implementasi
           </h2>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            Authentication sudah terhubung ke Supabase. Data dashboard masih
-            memakai dummy data dan akan dihubungkan ke database pada step
+          <p className="mt-2 text-sm leading-6 text-amber-900">
+            Profil usaha sudah terhubung ke Supabase. Data dashboard masih
+            memakai dummy data dan akan dihubungkan ke transaksi pada step
             berikutnya.
           </p>
         </div>

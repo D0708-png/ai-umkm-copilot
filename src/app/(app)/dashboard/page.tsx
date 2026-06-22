@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { logout } from "@/lib/actions/auth";
+
 import { getDashboardSummary } from "@/lib/services/dashboard.service";
 import { getCurrentUserBusiness } from "@/lib/services/business.service";
 import { formatCurrency } from "@/lib/utils/format";
@@ -41,14 +41,7 @@ export default async function DashboardPage() {
             </p>
           </div>
 
-          <form action={logout}>
-            <button
-              type="submit"
-              className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
-              Keluar
-            </button>
-          </form>
+      
         </div>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

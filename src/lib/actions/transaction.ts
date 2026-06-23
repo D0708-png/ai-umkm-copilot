@@ -25,10 +25,14 @@ function redirectWithMessage(path: string, message: string): never {
 }
 
 function parseAmount(value: string) {
-  const normalized = value.replace(/\./g, "").replace(",", ".");
-  return Number(normalized);
-}
+  const digits = value.replace(/\D/g, "");
 
+  if (!digits) {
+    return 0;
+  }
+
+  return Number(digits);
+}
 export async function createTransaction(formData: FormData) {
   const type = getString(formData, "type") as TransactionType;
   const categoryId = getString(formData, "category_id");
@@ -40,11 +44,18 @@ export async function createTransaction(formData: FormData) {
     redirectWithError("/transactions/new", "Jenis transaksi tidak valid.");
   }
 
-  const amount = parseAmount(amountRaw);
+  if (!amountRaw) {
+  redirectWithError("/transactions/new", "Nominal transaksi wajib diisi.");
+}
 
-  if (!amount || Number.isNaN(amount) || amount <= 0) {
-    redirectWithError("/transactions/new", "Nominal transaksi harus lebih besar dari 0.");
-  }
+const amount = parseAmount(amountRaw);
+
+if (!Number.isFinite(amount) || amount <= 0) {
+  redirectWithError(
+    "/transactions/new",
+    "Nominal transaksi harus lebih besar dari 0."
+  );
+}
 
   if (!transactionDate) {
     redirectWithError("/transactions/new", "Tanggal transaksi wajib diisi.");

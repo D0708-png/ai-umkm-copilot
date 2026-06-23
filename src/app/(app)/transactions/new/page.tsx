@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { redirect } from "next/navigation";
 import { createTransaction } from "@/lib/actions/transaction";
 import { getTransactionFormData } from "@/lib/services/transaction.service";
@@ -127,16 +128,12 @@ export default async function NewTransactionPage({
               >
                 Nominal
               </label>
-              <input
-                id="amount"
-                name="amount"
-                type="number"
-                min="1"
-                step="1"
-                placeholder="Contoh: 25000"
-                required
-                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-950 outline-none focus:border-emerald-500"
-              />
+              <CurrencyInput
+  id="amount"
+  name="amount"
+  placeholder="Contoh: 140.500"
+  required
+/>
             </div>
 
             <div>

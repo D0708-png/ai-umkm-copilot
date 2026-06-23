@@ -185,6 +185,13 @@ export default async function DashboardPage() {
 >
   Tanya AI Assistant
 </Link>
+
+<Link
+  href="/settings"
+  className="block rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+>
+  Pengaturan
+</Link>
             </div>
           </div>
         </div>

@@ -34,6 +34,12 @@ const navItems = [
     shortLabel: "AI",
     href: "/assistant",
   },
+
+  {
+  label: "Pengaturan",
+  shortLabel: "Setting",
+  href: "/settings",
+},
 ];
 
 type AppNavigationProps = {

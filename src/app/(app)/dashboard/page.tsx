@@ -1,9 +1,26 @@
+import type { CSSProperties } from "react";
+import { formatCurrency } from "@/lib/utils/format";
 import Link from "next/link";
+import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { redirect } from "next/navigation";
-
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  BadgeDollarSign,
+  BarChart3,
+  Bot,
+  ChevronRight,
+  Clock,
+  PackagePlus,
+  PlusCircle,
+  Sparkles,
+  TrendingUp,
+  TriangleAlert,
+  Wallet,
+} from "lucide-react";
+import { RevenueExpenseChart } from "@/components/charts/revenue-expense-chart";
 import { getDashboardSummary } from "@/lib/services/dashboard.service";
 import { getCurrentUserBusiness } from "@/lib/services/business.service";
-import { formatCurrency } from "@/lib/utils/format";
 
 export default async function DashboardPage() {
   const { user, business } = await getCurrentUserBusiness();
@@ -18,184 +35,307 @@ export default async function DashboardPage() {
 
   const summary = await getDashboardSummary(business.id);
 
+  const isProfit = summary.last7DaysProfit >= 0;
+  const dailyTarget =
+    summary.last7DaysIncome > 0
+      ? Math.max(Math.round(summary.last7DaysIncome / 7), 1000000)
+      : 1350000;
+
+  const salesProgress =
+    dailyTarget > 0
+      ? Math.min(100, Math.round((summary.last7DaysIncome / 7 / dailyTarget) * 100))
+      : 0;
+
+  const efficiencyProgress =
+    summary.last7DaysIncome + summary.last7DaysExpense > 0
+      ? Math.max(
+          0,
+          Math.min(
+            100,
+            Math.round(
+              (summary.last7DaysIncome /
+                (summary.last7DaysIncome + summary.last7DaysExpense)) *
+                100
+            )
+          )
+        )
+      : 0;
+
   return (
-    <main className="min-h-screen bg-slate-100 px-6 py-8">
-      <section className="mx-auto max-w-6xl">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="text-sm font-medium text-emerald-700">
-              AI UMKM Co-Pilot
-            </p>
-            <h1 className="mt-1 text-3xl font-bold text-slate-950">
-              Dashboard
-            </h1>
-            <p className="mt-2 text-slate-600">
-              Ringkasan bisnis bulan ini untuk{" "}
-              <span className="font-semibold text-slate-950">
-                {business.name}
-              </span>
-              .
-            </p>
-            <p className="mt-2 text-sm text-slate-500">
-              Login sebagai: {user.email}
-            </p>
+    <section
+      className="content-section is-active"
+      id="dashboard"
+      data-title="Dashboard"
+      data-desc="Ringkasan performa hari ini, rekomendasi AI, dan sinyal bisnis yang perlu dipantau."
+    >
+      <div className="grid stat-grid">
+        <article className="card stat-card hover-card">
+          <div className="stat-top">
+            <span className="stat-label">Pemasukan 7 Hari</span>
+            <span className="stat-icon">
+              <TrendingUp />
+            </span>
           </div>
 
-      
-        </div>
+          <div className="stat-value count">
+  <AnimatedCounter value={summary.last7DaysIncome} prefix="Rp " />
+</div>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Pemasukan Bulan Ini</p>
-            <p className="mt-2 text-2xl font-bold text-slate-950">
-              {formatCurrency(summary.income)}
-            </p>
+          <div className="stat-note">
+            <span className="delta">
+              <ArrowUpRight /> Aktif
+            </span>{" "}
+            dari transaksi tercatat
+          </div>
+        </article>
+
+        <article className="card stat-card hover-card">
+          <div className="stat-top">
+            <span className="stat-label">Pengeluaran</span>
+            <span
+              className="stat-icon"
+              style={{ background: "var(--red-soft)", color: "#991b1b" }}
+            >
+              <Wallet />
+            </span>
           </div>
 
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Pengeluaran Bulan Ini</p>
-            <p className="mt-2 text-2xl font-bold text-slate-950">
-              {formatCurrency(summary.expense)}
-            </p>
+          <div className="stat-value count">
+  <AnimatedCounter value={summary.last7DaysExpense} prefix="Rp " />
+</div>
+
+          <div className="stat-note">
+            <span className="delta is-down">
+              <ArrowDownRight /> Biaya
+            </span>{" "}
+            7 hari terakhir
+          </div>
+        </article>
+
+        <article className="card stat-card hover-card">
+          <div className="stat-top">
+            <span className="stat-label">Estimasi Laba</span>
+            <span
+              className="stat-icon"
+              style={{ background: "var(--blue-soft)", color: "#1d4ed8" }}
+            >
+              <BadgeDollarSign />
+            </span>
           </div>
 
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Estimasi Laba Bulan Ini</p>
-            <p className="mt-2 text-2xl font-bold text-slate-950">
-              {formatCurrency(summary.profit)}
-            </p>
+          <div className="stat-value count">
+  <AnimatedCounter value={summary.last7DaysProfit} prefix="Rp " />
+</div>
+
+          <div className="stat-note">
+            <span className={isProfit ? "delta" : "delta is-down"}>
+              <Sparkles /> {isProfit ? "Stabil" : "Perlu cek"}
+            </span>{" "}
+            estimasi 7 hari
+          </div>
+        </article>
+
+        <article className="card stat-card hover-card">
+          <div className="stat-top">
+            <span className="stat-label">Stok Perlu Restock</span>
+            <span
+              className="stat-icon"
+              style={{ background: "var(--amber-soft)", color: "#a34700" }}
+            >
+              <TriangleAlert />
+            </span>
           </div>
 
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Stok Rendah</p>
-            <p className="mt-2 text-2xl font-bold text-slate-950">
-              {summary.lowStock} produk
-            </p>
+          <div className="stat-value count">
+  <AnimatedCounter value={summary.lowStock} suffix=" produk" />
+</div>
+
+          <div className="stat-note">
+            <span className="delta is-down">
+              <Clock /> Hari ini
+            </span>{" "}
+            {summary.productCount} produk terdaftar
           </div>
-        </div>
+        </article>
+      </div>
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-3">
-          <div className="rounded-2xl bg-white p-6 shadow-sm lg:col-span-2">
-            <div className="flex items-center justify-between gap-4">
-              <h2 className="text-lg font-bold text-slate-950">
-                Transaksi Terbaru
-              </h2>
-
-              <Link
-                href="/transactions"
-                className="text-sm font-semibold text-emerald-700 hover:text-emerald-800"
-              >
-                Lihat semua
-              </Link>
+      <div className="grid dashboard-grid">
+        <article className="card chart-card hover-card">
+          <div className="panel-header">
+            <div>
+              <h2>Revenue vs Expense</h2>
+              <p>Pergerakan kas usaha selama 7 hari terakhir.</p>
             </div>
 
+            <div className="legend">
+              <span style={{ "--dot": "var(--emerald)" } as CSSProperties}>
+                Revenue
+              </span>
+              <span style={{ "--dot": "var(--red)" } as CSSProperties}>
+                Expense
+              </span>
+            </div>
+          </div>
+
+          <div className="chart-wrap">
+            <RevenueExpenseChart data={summary.chartData} />
+          </div>
+        </article>
+
+        <aside className="insight-card hover-card">
+          <span className="kicker">Insight AI</span>
+          <h2>
+            {isProfit
+              ? "Margin laba sedang kuat, tetapi stok tetap perlu dipantau."
+              : "Pengeluaran sedang lebih besar dari pemasukan."}
+          </h2>
+
+          <p>
+            {summary.recentTransactions.length === 0
+              ? "Belum ada transaksi yang cukup untuk dianalisis. Mulai catat pemasukan dan pengeluaran harian agar AI bisa membaca kondisi bisnis."
+              : isProfit
+                ? "Pemasukan 7 hari terakhir masih lebih besar dari pengeluaran. Pantau produk stok rendah agar penjualan tidak tertahan."
+                : "Cek pengeluaran terbesar dan evaluasi transaksi terbaru agar arus kas kembali positif."}
+          </p>
+
+          <div className="ai-summary">
+            <small className="kicker">Target harian</small>
+            <strong className="count">
+  <AnimatedCounter value={dailyTarget} prefix="Rp " />
+</strong>
+
+            <div className="progress-list">
+              <div className="progress-item">
+                <div className="progress-row">
+                  <span>Penjualan tercapai</span>
+                  <span>{salesProgress}%</span>
+                </div>
+                <div className="progress-track">
+                  <span
+                    className="progress-fill"
+                    style={{ width: `${salesProgress}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="progress-item">
+                <div className="progress-row">
+                  <span>Efisiensi biaya</span>
+                  <span>{efficiencyProgress}%</span>
+                </div>
+                <div className="progress-track">
+                  <span
+                    className="progress-fill"
+                    style={{ width: `${efficiencyProgress}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <div className="grid section-grid" style={{ marginTop: 18 }}>
+        <article className="card table-card hover-card">
+          <div className="panel-header">
+            <div>
+              <h2>Transaksi Terbaru</h2>
+              <p>Arus kas terbaru dari kasir dan pencatatan manual.</p>
+            </div>
+
+            <Link href="/transactions" className="ghost-button">
+              Lihat semua
+            </Link>
+          </div>
+
+          <div className="list">
             {summary.recentTransactions.length === 0 ? (
-              <div className="mt-6 rounded-xl border border-dashed border-slate-200 p-6 text-center">
-                <p className="font-semibold text-slate-950">
-                  Belum ada transaksi.
-                </p>
-                <p className="mt-2 text-sm text-slate-600">
-                  Mulai catat pemasukan atau pengeluaran pertama kamu.
-                </p>
+              <div className="data-row">
+                <div className="row-title">
+                  <span className="tag info">Kosong</span>
+                  <strong>Belum ada transaksi</strong>
+                  <small>Tambahkan transaksi pertama untuk mulai membaca arus kas.</small>
+                </div>
+
+                <span className="amount">Rp 0</span>
+
                 <Link
                   href="/transactions/new"
-                  className="mt-4 inline-flex rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600"
+                  className="icon-button"
+                  aria-label="Tambah transaksi"
                 >
-                  Tambah Transaksi
+                  <ChevronRight />
                 </Link>
               </div>
             ) : (
-              <div className="mt-4 divide-y divide-slate-100">
-                {summary.recentTransactions.map((transaction) => {
-                  const isIncome = transaction.type === "income";
+              summary.recentTransactions.slice(0, 3).map((transaction) => {
+                const isIncome = transaction.type === "income";
 
-                  return (
-                    <div
-                      key={transaction.id}
-                      className="flex items-center justify-between gap-4 py-4"
-                    >
-                      <div>
-                        <p className="font-semibold text-slate-950">
-                          {transaction.description || "Tanpa deskripsi"}
-                        </p>
-                        <p className="mt-1 text-sm text-slate-500">
-                          {transaction.transaction_date}
-                        </p>
-                      </div>
-
-                      <p
-                        className={`font-bold ${
-                          isIncome ? "text-emerald-700" : "text-red-700"
-                        }`}
-                      >
-                        {isIncome ? "+" : "-"}
-                        {formatCurrency(Number(transaction.amount))}
-                      </p>
+                return (
+                  <div className="data-row" key={transaction.id}>
+                    <div className="row-title">
+                      <span className={`tag ${isIncome ? "income" : "expense"}`}>
+                        {isIncome ? "Pemasukan" : "Pengeluaran"}
+                      </span>
+                      <strong>{transaction.description || "Tanpa deskripsi"}</strong>
+                      <small>
+                        {transaction.transaction_date} •{" "}
+                        {isIncome ? "Pemasukan usaha" : "Pengeluaran usaha"}
+                      </small>
                     </div>
-                  );
-                })}
-              </div>
+
+                    <span className={`amount ${isIncome ? "income" : "expense"}`}>
+                      {isIncome ? "+" : "-"}Rp{" "}
+                      {new Intl.NumberFormat("id-ID").format(
+                        Number(transaction.amount)
+                      )}
+                    </span>
+
+                    <Link
+                      href="/transactions"
+                      className="icon-button"
+                      aria-label="Detail transaksi"
+                    >
+                      <ChevronRight />
+                    </Link>
+                  </div>
+                );
+              })
             )}
           </div>
+        </article>
 
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-bold text-slate-950">
-              Aksi Cepat
-            </h2>
-
-            <div className="mt-4 space-y-3">
-              <Link
-                href="/transactions/new"
-                className="block rounded-xl bg-emerald-500 px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-emerald-600"
-              >
-                Tambah Transaksi
-              </Link>
-
-              <Link
-                href="/transactions"
-                className="block rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-              >
-                Lihat Transaksi
-              </Link>
-
-              <Link
-  href="/products"
-  className="block rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
->
-  Kelola Produk
-</Link>
-
-<Link
-  href="/stocks"
-  className="block rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
->
-  Kelola Stok
-</Link>
-
-<Link
-  href="/reports/profit"
-  className="block rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
->
-  Lihat Laporan
-</Link>
-
-<Link
-  href="/assistant"
-  className="block rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
->
-  Tanya AI Assistant
-</Link>
-
-<Link
-  href="/settings"
-  className="block rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
->
-  Pengaturan
-</Link>
+        <article className="card hover-card">
+          <div className="panel-header">
+            <div>
+              <h2>Aksi Cepat</h2>
+              <p>Operasi yang paling sering dipakai pemilik usaha.</p>
             </div>
           </div>
-        </div>
-      </section>
-    </main>
+
+          <div className="quick-actions">
+            <Link href="/transactions/new" className="chip-button">
+              <span>Tambah transaksi kasir</span>
+              <PlusCircle />
+            </Link>
+
+            <Link href="/stocks" className="chip-button">
+              <span>Catat stok masuk</span>
+              <PackagePlus />
+            </Link>
+
+            <Link href="/assistant" className="chip-button">
+              <span>Tanya rekomendasi AI</span>
+              <Bot />
+            </Link>
+
+            <Link href="/reports/profit" className="chip-button">
+              <span>Buka laporan laba rugi</span>
+              <BarChart3 />
+            </Link>
+          </div>
+        </article>
+      </div>
+    </section>
   );
 }

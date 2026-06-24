@@ -139,19 +139,18 @@ export function CurrencyInput({
   return (
     <div>
       <input
-        id={id}
-        name={name}
-        type="text"
-        inputMode="numeric"
-        autoComplete="off"
-        value={value}
-        required={required}
-        placeholder={placeholder}
-        onChange={(event) => {
-          setValue(formatNumberInput(event.target.value));
-        }}
-        className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-950 outline-none focus:border-emerald-500"
-      />
+  id={id}
+  name={name}
+  type="text"
+  inputMode="numeric"
+  autoComplete="off"
+  value={value}
+  required={required}
+  placeholder={placeholder}
+  onChange={(event) => {
+    setValue(formatNumberInput(event.target.value));
+  }}
+/>
 
       {value ? (
         numericValue > 0 ? (

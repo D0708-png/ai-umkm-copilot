@@ -1,7 +1,10 @@
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AnimatedCounter } from "@/components/ui/animated-counter";
+import { Download } from "lucide-react";
+import { ExpenseDonutChart } from "@/components/charts/expense-donut-chart";
 import { getProfitReportData } from "@/lib/services/report.service";
-import { formatCurrency } from "@/lib/utils/format";
 
 type ProfitReportPageProps = {
   searchParams: Promise<{
@@ -9,6 +12,9 @@ type ProfitReportPageProps = {
     end_date?: string;
   }>;
 };
+
+const rupiah = new Intl.NumberFormat("id-ID");
+const swatches = ["#14b8a6", "#f59e0b", "#6366f1", "#ef4444", "#0f172a"];
 
 export default async function ProfitReportPage({
   searchParams,
@@ -30,293 +36,219 @@ export default async function ProfitReportPage({
   }
 
   const isProfit = summary.profit >= 0;
+  const totalExpenseByCategory = expenseByCategory.reduce(
+    (total, item) => total + item.total,
+    0
+  );
+
+  const topExpense = expenseByCategory[0];
 
   return (
-    <main className="min-h-screen bg-slate-100 px-6 py-8">
-      <section className="mx-auto max-w-6xl">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="text-sm font-medium text-emerald-700">
-              AI UMKM Co-Pilot
-            </p>
-            <h1 className="mt-1 text-3xl font-bold text-slate-950">
-              Laporan Laba Rugi
-            </h1>
-            <p className="mt-2 text-slate-600">
-              Laporan sederhana untuk usaha{" "}
-              <span className="font-semibold text-slate-950">
-                {business.name}
-              </span>
-              .
-            </p>
+    <section
+      className="content-section is-active"
+      id="laporan"
+      data-title="Laporan Laba Rugi"
+      data-desc="Laporan visual untuk membantu pemilik melihat sumber laba dan biaya terbesar."
+    >
+      <div className="grid stat-grid">
+        <article className="card stat-card hover-card">
+          <span className="stat-label">Total Pemasukan</span>
+          <div className="stat-value count">
+  <AnimatedCounter value={summary.income} prefix="Rp " />
+</div>
+          <p>
+            Periode {period.startDate} sampai {period.endDate}.
+          </p>
+        </article>
+
+        <article className="card stat-card hover-card">
+          <span className="stat-label">Total Pengeluaran</span>
+          <div className="stat-value count">
+  <AnimatedCounter value={summary.expense} prefix="Rp " />
+</div>
+          <p>
+            {topExpense
+              ? `${topExpense.categoryName} menjadi kategori terbesar.`
+              : "Belum ada pengeluaran pada periode ini."}
+          </p>
+        </article>
+
+        <article className="card stat-card hover-card">
+          <span className="stat-label">Estimasi Laba</span>
+          <div className="stat-value count">
+  <AnimatedCounter value={summary.profit} prefix="Rp " />
+</div>
+          <p>
+            Estimasi sederhana pemasukan dikurangi pengeluaran.
+          </p>
+        </article>
+
+        <article className="card stat-card hover-card">
+          <span className="stat-label">Jumlah Transaksi</span>
+          <div className="stat-value count">
+  <AnimatedCounter value={summary.transactionCount} />
+</div>
+          <p>
+            Transaksi dalam periode laporan yang sedang dibaca.
+          </p>
+        </article>
+      </div>
+
+      <div className="grid report-grid">
+        <article className="card hover-card">
+          <div className="panel-header">
+            <div>
+              <h2>Pengeluaran per Kategori</h2>
+              <p>Donut chart interaktif untuk melihat komposisi biaya.</p>
+            </div>
           </div>
 
-          <Link
-            href="/dashboard"
-            className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-          >
-            Kembali ke Dashboard
+          <div className="donut-wrap report-donut-wrap">
+  <div className="report-donut-box">
+    <ExpenseDonutChart data={expenseByCategory} />
+  </div>
+
+  <div className="category-list">
+              {expenseByCategory.length === 0 ? (
+                <div className="category-item">
+                  <span className="category-left">
+                    <span
+                      className="swatch"
+                      style={{ "--swatch": "#98a2b3" } as CSSProperties}
+                    />
+                    <strong>Belum ada pengeluaran</strong>
+                  </span>
+                  <span>0%</span>
+                </div>
+              ) : (
+                expenseByCategory.slice(0, 5).map((item, index) => {
+                  const percentage =
+                    totalExpenseByCategory > 0
+                      ? Math.round((item.total / totalExpenseByCategory) * 100)
+                      : 0;
+
+                  return (
+                    <div className="category-item" key={item.categoryName}>
+                      <span className="category-left">
+                        <span
+                          className="swatch"
+                          style={
+                            {
+                              "--swatch": swatches[index % swatches.length],
+                            } as CSSProperties
+                          }
+                        />
+                        <strong>{item.categoryName}</strong>
+                      </span>
+                      <span>{percentage}%</span>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </article>
+
+        <article className="card hero-metric hover-card">
+          <span className="kicker">Ringkasan Perhitungan</span>
+
+          <h2>
+            {summary.transactionCount === 0
+              ? "Belum ada data transaksi pada periode ini."
+              : isProfit
+                ? "Laba periode ini masih positif berdasarkan transaksi tercatat."
+                : "Periode ini menunjukkan estimasi rugi dari transaksi tercatat."}
+          </h2>
+
+          <strong className="count">
+  <AnimatedCounter value={summary.profit} prefix="Rp " />
+</strong>
+
+          <p>
+            {summary.transactionCount === 0
+              ? "Tambahkan transaksi pemasukan dan pengeluaran agar laporan bisa dibaca."
+              : isProfit
+                ? `Pemasukan Rp ${rupiah.format(
+                    summary.income
+                  )} dikurangi pengeluaran Rp ${rupiah.format(
+                    summary.expense
+                  )}. Pertahankan pencatatan rutin agar laporan semakin akurat.`
+                : `Pengeluaran Rp ${rupiah.format(
+                    summary.expense
+                  )} lebih besar dari pemasukan Rp ${rupiah.format(
+                    summary.income
+                  )}. Coba evaluasi kategori biaya terbesar.`}
+          </p>
+
+          <button className="primary-button" type="button">
+            <Download />
+            Unduh Laporan
+          </button>
+        </article>
+      </div>
+
+      <article className="card table-card hover-card" style={{ marginTop: 18 }}>
+        <div className="panel-header">
+          <div>
+            <h2>Transaksi dalam Periode</h2>
+            <p>Daftar transaksi yang menjadi dasar laporan laba rugi.</p>
+          </div>
+
+          <Link href="/transactions" className="ghost-button">
+            Lihat Transaksi
           </Link>
         </div>
 
-        <form
-          action="/reports/profit"
-          className="mt-8 rounded-2xl bg-white p-6 shadow-sm"
-        >
-          <h2 className="font-bold text-slate-950">Filter Periode</h2>
-
-          <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
-            <div>
-              <label
-                htmlFor="start_date"
-                className="text-sm font-medium text-slate-700"
-              >
-                Tanggal Mulai
-              </label>
-              <input
-                id="start_date"
-                name="start_date"
-                type="date"
-                defaultValue={period.startDate}
-                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-950 outline-none focus:border-emerald-500"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="end_date"
-                className="text-sm font-medium text-slate-700"
-              >
-                Tanggal Selesai
-              </label>
-              <input
-                id="end_date"
-                name="end_date"
-                type="date"
-                defaultValue={period.endDate}
-                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-950 outline-none focus:border-emerald-500"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600"
-            >
-              Terapkan
-            </button>
-          </div>
-        </form>
-
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Total Pemasukan</p>
-            <p className="mt-2 text-2xl font-bold text-slate-950">
-              {formatCurrency(summary.income)}
-            </p>
-          </div>
-
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Total Pengeluaran</p>
-            <p className="mt-2 text-2xl font-bold text-slate-950">
-              {formatCurrency(summary.expense)}
-            </p>
-          </div>
-
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Estimasi Laba</p>
-            <p
-              className={`mt-2 text-2xl font-bold ${
-                isProfit ? "text-emerald-700" : "text-red-700"
-              }`}
-            >
-              {formatCurrency(summary.profit)}
-            </p>
-          </div>
-
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Jumlah Transaksi</p>
-            <p className="mt-2 text-2xl font-bold text-slate-950">
-              {summary.transactionCount}
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-bold text-slate-950">
-            Ringkasan Perhitungan
-          </h2>
-
-          <div className="mt-4 rounded-xl bg-slate-50 p-5">
-            <p className="text-sm leading-6 text-slate-700">
-              Estimasi laba dihitung dengan rumus sederhana:
-            </p>
-
-            <p className="mt-3 text-lg font-bold text-slate-950">
-              {formatCurrency(summary.income)} -{" "}
-              {formatCurrency(summary.expense)} ={" "}
-              <span className={isProfit ? "text-emerald-700" : "text-red-700"}>
-                {formatCurrency(summary.profit)}
-              </span>
-            </p>
-
-            <p className="mt-3 text-sm leading-6 text-slate-600">
-              Catatan: laporan MVP ini belum menghitung HPP, pajak, penyusutan,
-              piutang, utang, atau neraca. Ini adalah estimasi sederhana dari
-              pemasukan dikurangi pengeluaran.
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-8 grid gap-6 lg:grid-cols-2">
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-bold text-slate-950">
-              Pengeluaran per Kategori
-            </h2>
-
-            {expenseByCategory.length === 0 ? (
-              <p className="mt-4 rounded-xl border border-dashed border-slate-200 p-6 text-sm text-slate-600">
-                Belum ada pengeluaran pada periode ini.
-              </p>
-            ) : (
-              <div className="mt-4 divide-y divide-slate-100">
-                {expenseByCategory.map((item) => (
-                  <div
-                    key={item.categoryName}
-                    className="flex items-center justify-between gap-4 py-4"
-                  >
-                    <p className="font-semibold text-slate-950">
-                      {item.categoryName}
-                    </p>
-                    <p className="font-bold text-red-700">
-                      {formatCurrency(item.total)}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-bold text-slate-950">
-              Insight Sederhana
-            </h2>
-
-            <div className="mt-4 space-y-4 text-sm leading-6 text-slate-700">
-              {summary.transactionCount === 0 ? (
-                <p>
-                  Belum ada transaksi pada periode ini. Mulai catat pemasukan
-                  dan pengeluaran agar laporan bisa terbaca.
-                </p>
-              ) : isProfit ? (
-                <p>
-                  Berdasarkan data yang dicatat, usaha kamu menghasilkan
-                  estimasi laba sebesar{" "}
-                  <span className="font-semibold text-emerald-700">
-                    {formatCurrency(summary.profit)}
-                  </span>{" "}
-                  pada periode ini.
-                </p>
-              ) : (
-                <p>
-                  Berdasarkan data yang dicatat, usaha kamu mengalami estimasi
-                  rugi sebesar{" "}
-                  <span className="font-semibold text-red-700">
-                    {formatCurrency(Math.abs(summary.profit))}
-                  </span>{" "}
-                  pada periode ini.
-                </p>
-              )}
-
-              {expenseByCategory[0] ? (
-                <p>
-                  Pengeluaran terbesar berasal dari kategori{" "}
-                  <span className="font-semibold text-slate-950">
-                    {expenseByCategory[0].categoryName}
-                  </span>{" "}
-                  sebesar{" "}
-                  <span className="font-semibold text-slate-950">
-                    {formatCurrency(expenseByCategory[0].total)}
-                  </span>
-                  .
-                </p>
-              ) : null}
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-8 overflow-hidden rounded-2xl bg-white shadow-sm">
-          <div className="border-b border-slate-100 px-6 py-4">
-            <h2 className="font-bold text-slate-950">
-              Transaksi dalam Periode Ini
-            </h2>
-          </div>
-
+        <div className="list">
           {transactions.length === 0 ? (
-            <div className="px-6 py-12 text-center">
-              <p className="font-semibold text-slate-950">
-                Belum ada transaksi.
-              </p>
-              <p className="mt-2 text-sm text-slate-600">
-                Tambahkan transaksi untuk melihat laporan periode ini.
-              </p>
-              <Link
-                href="/transactions/new"
-                className="mt-6 inline-flex rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600"
-              >
-                Tambah Transaksi
+            <div className="data-row">
+              <div className="row-title">
+                <span className="tag info">Kosong</span>
+                <strong>Belum ada transaksi</strong>
+                <small>
+                  Tidak ada transaksi pada periode laporan ini.
+                </small>
+              </div>
+
+              <span className="amount">Rp 0</span>
+
+              <Link href="/transactions/new" className="ghost-button">
+                Tambah
               </Link>
             </div>
           ) : (
-            <div className="divide-y divide-slate-100">
-              {transactions.map((transaction) => {
-                const isIncome = transaction.type === "income";
+            transactions.slice(0, 8).map((transaction) => {
+              const isIncome = transaction.type === "income";
 
-                return (
-                  <div
-                    key={transaction.id}
-                    className="flex flex-col gap-3 px-6 py-4 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span
-                          className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                            isIncome
-                              ? "bg-emerald-50 text-emerald-700"
-                              : "bg-red-50 text-red-700"
-                          }`}
-                        >
-                          {isIncome ? "Pemasukan" : "Pengeluaran"}
-                        </span>
+              return (
+                <div className="data-row" key={transaction.id}>
+                  <div className="row-title">
+                    <span className={`tag ${isIncome ? "income" : "expense"}`}>
+                      {isIncome ? "Pemasukan" : "Pengeluaran"}
+                    </span>
 
-                        <span className="text-sm text-slate-500">
-                          {transaction.transaction_date}
-                        </span>
-                      </div>
+                    <strong>
+                      {transaction.description || "Tanpa deskripsi"}
+                    </strong>
 
-                      <p className="mt-2 font-semibold text-slate-950">
-                        {transaction.description || "Tanpa deskripsi"}
-                      </p>
-
-                      <p className="mt-1 text-sm text-slate-500">
-                        Kategori: {transaction.category?.name || "-"}
-                      </p>
-                    </div>
-
-                    <p
-                      className={`text-lg font-bold ${
-                        isIncome ? "text-emerald-700" : "text-red-700"
-                      }`}
-                    >
-                      {isIncome ? "+" : "-"}
-                      {formatCurrency(Number(transaction.amount))}
-                    </p>
+                    <small>
+                      {transaction.transaction_date} •{" "}
+                      {transaction.category?.name || "Tanpa kategori"}
+                    </small>
                   </div>
-                );
-              })}
-            </div>
+
+                  <span className={`amount ${isIncome ? "income" : "expense"}`}>
+                    {isIncome ? "+" : "-"}Rp{" "}
+                    {rupiah.format(Number(transaction.amount))}
+                  </span>
+
+                  <span className="tag info">Laporan</span>
+                </div>
+              );
+            })
           )}
         </div>
-      </section>
-    </main>
+      </article>
+    </section>
   );
 }

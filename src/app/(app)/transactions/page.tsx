@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AnimatedCounter } from "@/components/ui/animated-counter";
+import { Plus, Trash2 } from "lucide-react";
 import { deleteTransaction } from "@/lib/actions/transaction";
 import { getTransactionsPageData } from "@/lib/services/transaction.service";
-import { formatCurrency } from "@/lib/utils/format";
 
 type TransactionsPageProps = {
   searchParams: Promise<{
@@ -10,6 +11,8 @@ type TransactionsPageProps = {
     message?: string;
   }>;
 };
+
+const rupiah = new Intl.NumberFormat("id-ID");
 
 export default async function TransactionsPage({
   searchParams,
@@ -27,164 +30,128 @@ export default async function TransactionsPage({
   }
 
   return (
-    <main className="min-h-screen bg-slate-100 px-6 py-8">
-      <section className="mx-auto max-w-6xl">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <section
+      className="content-section is-active"
+      id="transaksi"
+      data-title="Transaksi"
+      data-desc={`Catat dan pantau pemasukan serta pengeluaran ${business.name}.`}
+    >
+      {params.message ? (
+        <div className="card" style={{ marginBottom: 18, padding: 16 }}>
+          <p style={{ color: "#047857", fontWeight: 800 }}>
+            {params.message}
+          </p>
+        </div>
+      ) : null}
+
+      {params.error ? (
+        <div className="card" style={{ marginBottom: 18, padding: 16 }}>
+          <p style={{ color: "#b91c1c", fontWeight: 800 }}>{params.error}</p>
+        </div>
+      ) : null}
+
+      <div className="grid stat-grid three-stat-grid">
+        <article className="card stat-card hover-card">
+          <span className="stat-label">Total Pemasukan</span>
+          <div className="stat-value count">
+  <AnimatedCounter value={summary.income} prefix="Rp " />
+</div>
+          <p>Termasuk semua transaksi pemasukan yang sudah dicatat.</p>
+        </article>
+
+        <article className="card stat-card hover-card">
+          <span className="stat-label">Total Pengeluaran</span>
+          <div className="stat-value count">
+  <AnimatedCounter value={summary.expense} prefix="Rp " />
+</div>
+          <p>Belanja bahan, operasional, listrik, gaji, dan biaya lain.</p>
+        </article>
+
+        <article className="card stat-card hover-card">
+          <span className="stat-label">Estimasi Laba</span>
+          <div className="stat-value count">
+  <AnimatedCounter value={summary.profit} prefix="Rp " />
+</div>
+          <p>Belum termasuk pajak, piutang, utang, dan penyusutan aset.</p>
+        </article>
+      </div>
+
+      <article className="card table-card hover-card">
+        <div className="panel-header">
           <div>
-            <p className="text-sm font-medium text-emerald-700">
-              AI UMKM Co-Pilot
-            </p>
-            <h1 className="mt-1 text-3xl font-bold text-slate-950">
-              Transaksi
-            </h1>
-            <p className="mt-2 text-slate-600">
-              Catat dan pantau pemasukan serta pengeluaran usaha{" "}
-              <span className="font-semibold text-slate-950">
-                {business.name}
-              </span>
-              .
+            <h2>Daftar Transaksi</h2>
+            <p>
+              Rows dibuat lebih visual dengan tag, konteks tanggal, kategori,
+              dan aksi cepat.
             </p>
           </div>
 
-          <Link
-            href="/transactions/new"
-            className="rounded-xl bg-emerald-500 px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-emerald-600"
-          >
-            Tambah Transaksi
+          <Link href="/transactions/new" className="primary-button">
+            <Plus />
+            Tambah
           </Link>
         </div>
 
-        {params.message ? (
-          <div className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-            {params.message}
-          </div>
-        ) : null}
-
-        {params.error ? (
-          <div className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-            {params.error}
-          </div>
-        ) : null}
-
-        <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Total Pemasukan</p>
-            <p className="mt-2 text-2xl font-bold text-slate-950">
-              {formatCurrency(summary.income)}
-            </p>
-          </div>
-
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Total Pengeluaran</p>
-            <p className="mt-2 text-2xl font-bold text-slate-950">
-              {formatCurrency(summary.expense)}
-            </p>
-          </div>
-
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Estimasi Laba</p>
-            <p className="mt-2 text-2xl font-bold text-slate-950">
-              {formatCurrency(summary.profit)}
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-8 overflow-hidden rounded-2xl bg-white shadow-sm">
-          <div className="border-b border-slate-100 px-6 py-4">
-            <h2 className="font-bold text-slate-950">Daftar Transaksi</h2>
-          </div>
-
+        <div className="list">
           {transactions.length === 0 ? (
-            <div className="px-6 py-12 text-center">
-              <p className="font-semibold text-slate-950">
-                Belum ada transaksi.
-              </p>
-              <p className="mt-2 text-sm text-slate-600">
-                Mulai catat pemasukan atau pengeluaran pertama kamu.
-              </p>
-              <Link
-                href="/transactions/new"
-                className="mt-6 inline-flex rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600"
-              >
-                Tambah Transaksi
+            <div className="data-row">
+              <div className="row-title">
+                <span className="tag info">Kosong</span>
+                <strong>Belum ada transaksi</strong>
+                <small>
+                  Tambahkan transaksi pemasukan atau pengeluaran pertama.
+                </small>
+              </div>
+
+              <span className="amount">Rp 0</span>
+
+              <Link href="/transactions/new" className="ghost-button">
+                Tambah
               </Link>
             </div>
           ) : (
-            <div className="divide-y divide-slate-100">
-              {transactions.map((transaction) => {
-                const isIncome = transaction.type === "income";
+            transactions.map((transaction) => {
+              const isIncome = transaction.type === "income";
 
-                return (
-                  <div
-                    key={transaction.id}
-                    className="flex flex-col gap-4 px-6 py-4 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span
-                          className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                            isIncome
-                              ? "bg-emerald-50 text-emerald-700"
-                              : "bg-red-50 text-red-700"
-                          }`}
-                        >
-                          {isIncome ? "Pemasukan" : "Pengeluaran"}
-                        </span>
+              return (
+                <div className="data-row" key={transaction.id}>
+                  <div className="row-title">
+                    <span className={`tag ${isIncome ? "income" : "expense"}`}>
+                      {isIncome ? "Pemasukan" : "Pengeluaran"}
+                    </span>
 
-                        <span className="text-sm text-slate-500">
-                          {transaction.transaction_date}
-                        </span>
-                      </div>
+                    <strong>
+                      {transaction.description || "Tanpa deskripsi"}
+                    </strong>
 
-                      <p className="mt-2 font-semibold text-slate-950">
-                        {transaction.description || "Tanpa deskripsi"}
-                      </p>
-
-                      <p className="mt-1 text-sm text-slate-500">
-                        Kategori: {transaction.category?.name || "-"}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                      <p
-                        className={`text-lg font-bold ${
-                          isIncome ? "text-emerald-700" : "text-red-700"
-                        }`}
-                      >
-                        {isIncome ? "+" : "-"}
-                        {formatCurrency(Number(transaction.amount))}
-                      </p>
-
-                      <form action={deleteTransaction}>
-                        <input
-                          type="hidden"
-                          name="transaction_id"
-                          value={transaction.id}
-                        />
-                        <button
-                          type="submit"
-                          className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
-                        >
-                          Hapus
-                        </button>
-                      </form>
-                    </div>
+                    <small>
+                      {transaction.transaction_date} •{" "}
+                      {transaction.category?.name || "Tanpa kategori"}
+                    </small>
                   </div>
-                );
-              })}
-            </div>
+
+                  <span className={`amount ${isIncome ? "income" : "expense"}`}>
+                    {isIncome ? "+" : "-"}Rp{" "}
+                    {rupiah.format(Number(transaction.amount))}
+                  </span>
+
+                  <form action={deleteTransaction}>
+                    <input
+                      type="hidden"
+                      name="transaction_id"
+                      value={transaction.id}
+                    />
+                    <button className="ghost-button" type="submit">
+                      <Trash2 />
+                      Hapus
+                    </button>
+                  </form>
+                </div>
+              );
+            })
           )}
         </div>
-
-        <div className="mt-8">
-          <Link
-            href="/dashboard"
-            className="text-sm font-semibold text-emerald-700 hover:text-emerald-800"
-          >
-            ← Kembali ke Dashboard
-          </Link>
-        </div>
-      </section>
-    </main>
+      </article>
+    </section>
   );
 }

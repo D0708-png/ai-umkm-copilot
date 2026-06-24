@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { CurrencyInput } from "@/components/ui/currency-input";
 import { redirect } from "next/navigation";
+import { ArrowLeft, Save } from "lucide-react";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { createTransaction } from "@/lib/actions/transaction";
 import { getTransactionFormData } from "@/lib/services/transaction.service";
 
@@ -32,71 +33,43 @@ export default async function NewTransactionPage({
     (category) => category.type === "expense"
   );
 
+  const today = new Date().toISOString().slice(0, 10);
+
   return (
-    <main className="min-h-screen bg-slate-100 px-6 py-8">
-      <section className="mx-auto max-w-3xl">
-        <div>
-          <p className="text-sm font-medium text-emerald-700">
-            AI UMKM Co-Pilot
-          </p>
-          <h1 className="mt-1 text-3xl font-bold text-slate-950">
-            Tambah Transaksi
-          </h1>
-          <p className="mt-2 text-slate-600">
-            Catat pemasukan atau pengeluaran usaha{" "}
-            <span className="font-semibold text-slate-950">
-              {business.name}
-            </span>
-            .
-          </p>
+    <section
+      className="content-section is-active"
+      id="transaksi-baru"
+      data-title="Tambah Transaksi"
+      data-desc={`Catat pemasukan atau pengeluaran untuk ${business.name}.`}
+    >
+      {params.error ? (
+        <div className="card" style={{ marginBottom: 18, padding: 16 }}>
+          <p style={{ color: "#b91c1c", fontWeight: 800 }}>{params.error}</p>
         </div>
+      ) : null}
 
-        {params.error ? (
-          <div className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-            {params.error}
+      <div className="grid stock-grid">
+        <article className="card form-card hover-card">
+          <div>
+            <h2>Form Transaksi</h2>
+            <p>
+              Masukkan data transaksi harian. Nominal akan otomatis diformat
+              seperti 140.500.
+            </p>
           </div>
-        ) : null}
 
-        <form
-          action={createTransaction}
-          className="mt-8 rounded-2xl bg-white p-6 shadow-sm"
-        >
-          <div className="space-y-5">
-            <div>
-              <label
-                htmlFor="type"
-                className="text-sm font-medium text-slate-700"
-              >
-                Jenis Transaksi
-              </label>
-              <select
-                id="type"
-                name="type"
-                required
-                defaultValue="income"
-                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-950 outline-none focus:border-emerald-500"
-              >
+          <form action={createTransaction} className="form-card" style={{ padding: 0 }}>
+            <div className="field">
+              <label htmlFor="type">Jenis Transaksi</label>
+              <select id="type" name="type" required defaultValue="income">
                 <option value="income">Pemasukan</option>
                 <option value="expense">Pengeluaran</option>
               </select>
-              <p className="mt-2 text-xs text-slate-500">
-                Pastikan kategori yang dipilih sesuai dengan jenis transaksi.
-              </p>
             </div>
 
-            <div>
-              <label
-                htmlFor="category_id"
-                className="text-sm font-medium text-slate-700"
-              >
-                Kategori
-              </label>
-              <select
-                id="category_id"
-                name="category_id"
-                defaultValue=""
-                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-950 outline-none focus:border-emerald-500"
-              >
+            <div className="field">
+              <label htmlFor="category_id">Kategori</label>
+              <select id="category_id" name="category_id" defaultValue="">
                 <option value="">Tanpa kategori</option>
 
                 {incomeCategories.length > 0 ? (
@@ -121,71 +94,103 @@ export default async function NewTransactionPage({
               </select>
             </div>
 
-            <div>
-              <label
-                htmlFor="amount"
-                className="text-sm font-medium text-slate-700"
-              >
-                Nominal
-              </label>
+            <div className="field">
+              <label htmlFor="amount">Nominal</label>
               <CurrencyInput
-  id="amount"
-  name="amount"
-  placeholder="Contoh: 140.500"
-  required
-/>
+                id="amount"
+                name="amount"
+                placeholder="Contoh: 140.500"
+                required
+              />
             </div>
 
-            <div>
-              <label
-                htmlFor="description"
-                className="text-sm font-medium text-slate-700"
-              >
-                Deskripsi
-              </label>
+            <div className="field">
+              <label htmlFor="description">Deskripsi</label>
               <input
                 id="description"
                 name="description"
                 type="text"
-                placeholder="Contoh: Jual nasi ayam 1 porsi"
-                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-950 outline-none focus:border-emerald-500"
+                placeholder="Contoh: Jual 43 cup Es Kopi Susu"
               />
             </div>
 
-            <div>
-              <label
-                htmlFor="transaction_date"
-                className="text-sm font-medium text-slate-700"
-              >
-                Tanggal Transaksi
-              </label>
+            <div className="field">
+              <label htmlFor="transaction_date">Tanggal Transaksi</label>
               <input
                 id="transaction_date"
                 name="transaction_date"
                 type="date"
                 required
-                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-950 outline-none focus:border-emerald-500"
+                defaultValue={today}
               />
+            </div>
+
+            <button className="primary-button" type="submit">
+              <Save />
+              Simpan Transaksi
+            </button>
+          </form>
+        </article>
+
+        <article className="card hover-card">
+          <div className="panel-header">
+            <div>
+              <h2>Panduan Input</h2>
+              <p>
+                Form ini tetap memakai logic Supabase yang sama, hanya UI-nya
+                disesuaikan dengan prototype.
+              </p>
             </div>
           </div>
 
-          <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-            <Link
-              href="/transactions"
-              className="rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
-              Batal
-            </Link>
+          <div className="stock-list">
+            <div className="stock-row">
+              <div className="row-title">
+                <strong>Nominal otomatis rapi</strong>
+                <small>
+                  Ketik 140500, sistem akan membaca sebagai 140.500.
+                </small>
+                <div className="bar">
+                  <span style={{ "--w": "100%", "--bar": "var(--emerald)" } as React.CSSProperties} />
+                </div>
+              </div>
+              <span className="tag income">Aktif</span>
+            </div>
 
-            <button
-              type="submit"
-              className="rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600"
-            >
-              Simpan Transaksi
-            </button>
+            <div className="stock-row">
+              <div className="row-title">
+                <strong>Validasi nominal</strong>
+                <small>
+                  Nominal kosong, 0, atau negatif akan ditolak oleh server.
+                </small>
+                <div className="bar">
+                  <span style={{ "--w": "100%", "--bar": "var(--amber)" } as React.CSSProperties} />
+                </div>
+              </div>
+              <span className="tag warning">Aman</span>
+            </div>
+
+            <div className="stock-row">
+              <div className="row-title">
+                <strong>Kategori harus sesuai</strong>
+                <small>
+                  Kategori pemasukan hanya untuk pemasukan, kategori pengeluaran
+                  hanya untuk pengeluaran.
+                </small>
+                <div className="bar">
+                  <span style={{ "--w": "100%", "--bar": "var(--teal)" } as React.CSSProperties} />
+                </div>
+              </div>
+              <span className="tag info">RLS</span>
+            </div>
+
+            <Link href="/transactions" className="ghost-button">
+              <ArrowLeft />
+              Kembali ke Transaksi
+            </Link>
           </div>
-        </form>
-      </section>
-    </main>
+        </article>
+      </div>
+    </section>
   );
 }

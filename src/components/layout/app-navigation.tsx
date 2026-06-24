@@ -2,49 +2,53 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  Boxes,
+  Coffee,
+  LayoutDashboard,
+  MessageCircle,
+  PieChart,
+  ReceiptText,
+  Settings,
+} from "lucide-react";
 
 const navItems = [
   {
     label: "Dashboard",
-    shortLabel: "Home",
     href: "/dashboard",
+    icon: LayoutDashboard,
   },
   {
     label: "Transaksi",
-    shortLabel: "Transaksi",
     href: "/transactions",
+    icon: ReceiptText,
   },
   {
     label: "Produk",
-    shortLabel: "Produk",
     href: "/products",
+    icon: Coffee,
   },
   {
     label: "Stok",
-    shortLabel: "Stok",
     href: "/stocks",
+    icon: Boxes,
   },
   {
     label: "Laporan",
-    shortLabel: "Laporan",
     href: "/reports/profit",
+    icon: PieChart,
   },
   {
     label: "AI Assistant",
-    shortLabel: "AI",
     href: "/assistant",
+    icon: MessageCircle,
   },
-
   {
-  label: "Pengaturan",
-  shortLabel: "Setting",
-  href: "/settings",
-},
+    label: "Pengaturan",
+    href: "/settings",
+    icon: Settings,
+  },
 ];
-
-type AppNavigationProps = {
-  variant?: "sidebar" | "bottom";
-};
 
 function isActivePath(pathname: string, href: string) {
   if (href === "/dashboard") {
@@ -58,49 +62,28 @@ function isActivePath(pathname: string, href: string) {
   return pathname.startsWith(href);
 }
 
-export function AppNavigation({ variant = "sidebar" }: AppNavigationProps) {
+type AppNavigationProps = {
+  onNavigate?: () => void;
+};
+
+export function AppNavigation({ onNavigate }: AppNavigationProps) {
   const pathname = usePathname();
 
-  if (variant === "bottom") {
-    return (
-      <nav className="grid grid-cols-5 gap-1">
-        {navItems.slice(0, 5).map((item) => {
-          const active = isActivePath(pathname, item.href);
-
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`rounded-xl px-2 py-2 text-center text-xs font-semibold transition ${
-                active
-                  ? "bg-emerald-500 text-white"
-                  : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-              }`}
-            >
-              {item.shortLabel}
-            </Link>
-          );
-        })}
-      </nav>
-    );
-  }
-
   return (
-    <nav className="space-y-2">
+    <nav className="nav-list" aria-label="Navigasi utama">
       {navItems.map((item) => {
+        const Icon = item.icon;
         const active = isActivePath(pathname, item.href);
 
         return (
           <Link
             key={item.href}
             href={item.href}
-            className={`block rounded-xl px-4 py-3 text-sm font-semibold transition ${
-              active
-                ? "bg-emerald-500 text-white"
-                : "text-slate-600 hover:bg-slate-100 hover:text-slate-950"
-            }`}
+            onClick={onNavigate}
+            className={`nav-item ${active ? "is-active" : ""}`}
           >
-            {item.label}
+            <Icon />
+            <span>{item.label}</span>
           </Link>
         );
       })}

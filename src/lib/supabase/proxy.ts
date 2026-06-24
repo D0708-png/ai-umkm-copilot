@@ -12,7 +12,7 @@ const protectedRoutes = [
   "/settings",
 ];
 
-const authRoutes = ["/login", "/register"];
+const authRoutes = ["/login"];
 
 function getSupabaseEnv() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

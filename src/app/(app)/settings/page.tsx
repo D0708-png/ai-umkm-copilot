@@ -1,7 +1,10 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { seedDemoData } from "@/lib/actions/demo";
 import { getCurrentUserBusiness } from "@/lib/services/business.service";
+import {
+  DangerZone,
+  DemoDataControls,
+  PreferenceSwitches,
+} from "@/components/settings/settings-controls";
 
 type SettingsPageProps = {
   searchParams: Promise<{
@@ -9,6 +12,15 @@ type SettingsPageProps = {
     message?: string;
   }>;
 };
+
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase())
+    .join("");
+}
 
 export default async function SettingsPage({ searchParams }: SettingsPageProps) {
   const params = await searchParams;
@@ -22,120 +34,83 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
     redirect("/onboarding/business");
   }
 
+  const initials = getInitials(business.name) || "AI";
+
   return (
-    <main className="min-h-screen bg-slate-100 px-6 py-8">
-      <section className="mx-auto max-w-4xl">
-        <div>
-          <p className="text-sm font-medium text-emerald-700">
-            AI UMKM Co-Pilot
-          </p>
-          <h1 className="mt-1 text-3xl font-bold text-slate-950">
-            Pengaturan
-          </h1>
-          <p className="mt-2 text-slate-600">
-            Kelola pengaturan dan data demo untuk usaha{" "}
-            <span className="font-semibold text-slate-950">
-              {business.name}
-            </span>
-            .
-          </p>
-        </div>
-
-        {params.message ? (
-          <div className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+    <section
+      className="content-section is-active"
+      id="pengaturan"
+      data-title="Pengaturan"
+      data-desc="Kelola profil bisnis, preferensi notifikasi, dan data demo."
+    >
+      {params.message ? (
+        <div className="card" style={{ marginBottom: 18, padding: 16 }}>
+          <p style={{ color: "#047857", fontWeight: 800 }}>
             {params.message}
-          </div>
-        ) : null}
-
-        {params.error ? (
-          <div className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-            {params.error}
-          </div>
-        ) : null}
-
-        <div className="mt-8 grid gap-6">
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-bold text-slate-950">
-              Data Demo
-            </h2>
-
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              Tambahkan data demo untuk mencoba dashboard, transaksi, produk,
-              stok, laporan, dan AI Assistant tanpa input manual dari awal.
-            </p>
-
-            <div className="mt-5 rounded-xl bg-slate-50 p-4 text-sm leading-6 text-slate-700">
-              Data demo akan menambahkan:
-              <ul className="mt-2 list-disc space-y-1 pl-5">
-                <li>3 produk demo</li>
-                <li>Stok awal produk</li>
-                <li>Transaksi pemasukan bulan ini</li>
-                <li>Transaksi pengeluaran bulan ini</li>
-                <li>Transaksi pembanding bulan lalu</li>
-              </ul>
-            </div>
-
-            <form action={seedDemoData} className="mt-6">
-              <button
-                type="submit"
-                className="rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600"
-              >
-                Tambahkan Demo Data
-              </button>
-            </form>
-          </div>
-
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-bold text-slate-950">
-              Navigasi Testing
-            </h2>
-
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <Link
-                href="/dashboard"
-                className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-              >
-                Dashboard
-              </Link>
-
-              <Link
-                href="/transactions"
-                className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-              >
-                Transaksi
-              </Link>
-
-              <Link
-                href="/products"
-                className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-              >
-                Produk
-              </Link>
-
-              <Link
-                href="/stocks"
-                className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-              >
-                Stok
-              </Link>
-
-              <Link
-                href="/reports/profit"
-                className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-              >
-                Laporan
-              </Link>
-
-              <Link
-                href="/assistant"
-                className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-              >
-                AI Assistant
-              </Link>
-            </div>
-          </div>
+          </p>
         </div>
-      </section>
-    </main>
+      ) : null}
+
+      {params.error ? (
+        <div className="card" style={{ marginBottom: 18, padding: 16 }}>
+          <p style={{ color: "#b91c1c", fontWeight: 800 }}>
+            {params.error}
+          </p>
+        </div>
+      ) : null}
+
+      <div className="settings-card">
+        <article className="card profile-card hover-card">
+          <div className="profile-row">
+            <div className="avatar">{initials}</div>
+
+            <div>
+              <h2>{business.name}</h2>
+              <p>
+                {business.location || "Lokasi belum diisi"} •{" "}
+                {user.email || "Email tidak tersedia"}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid profile-stats">
+            <div className="mini-stat">
+              <small>Jenis usaha</small>
+              <strong>{business.business_type}</strong>
+            </div>
+
+            <div className="mini-stat">
+              <small>Mata uang</small>
+              <strong>{business.currency}</strong>
+            </div>
+
+            <div className="mini-stat">
+              <small>AI Status</small>
+              <strong>Aktif</strong>
+            </div>
+          </div>
+        </article>
+
+        <PreferenceSwitches />
+      </div>
+
+      <div className="grid section-grid" style={{ marginTop: 18 }}>
+        <DemoDataControls />
+
+        <article className="insight-card hover-card">
+          <span className="kicker">Status Sistem</span>
+          <h2>Project siap untuk final UI review.</h2>
+          <p>
+            Auth, profil bisnis, transaksi, produk, stok, laporan, AI Assistant,
+            dan demo data sudah terhubung. Setelah UI selesai, kita lanjutkan
+            build final dan deploy ke Vercel.
+          </p>
+        </article>
+      </div>
+
+      <div style={{ marginTop: 18 }}>
+        <DangerZone />
+      </div>
+    </section>
   );
 }

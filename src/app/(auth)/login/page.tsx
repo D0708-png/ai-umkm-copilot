@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Sparkles } from "lucide-react";
 import { login } from "@/lib/actions/auth";
 
 type LoginPageProps = {
@@ -12,76 +13,98 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 px-6 text-white">
-      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 p-8">
-        <div>
-          <p className="text-sm font-medium text-emerald-300">
-            AI UMKM Co-Pilot
-          </p>
-          <h1 className="mt-2 text-2xl font-bold">Masuk</h1>
-          <p className="mt-2 text-sm leading-6 text-slate-300">
-            Masuk untuk mengelola transaksi, produk, stok, dan insight bisnis.
-          </p>
-        </div>
+    <main className="auth-page">
+      <div className="auth-shell">
+        <section className="auth-hero hover-card">
+          <div className="auth-brand">
+            <div className="brand-mark" aria-hidden="true">
+              <Sparkles />
+            </div>
 
-        {params.message ? (
-          <div className="mt-6 rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">
-            {params.message}
-          </div>
-        ) : null}
-
-        {params.error ? (
-          <div className="mt-6 rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-200">
-            {params.error}
-          </div>
-        ) : null}
-
-        <form action={login} className="mt-6 space-y-4">
-          <div>
-            <label htmlFor="email" className="text-sm font-medium text-slate-200">
-              Email
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="nama@email.com"
-              required
-              className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-emerald-400"
-            />
+            <div className="auth-brand-text">
+              <span>AI UMKM</span>
+              <strong>Co-Pilot</strong>
+            </div>
           </div>
 
-          <div>
-            <label
-              htmlFor="password"
-              className="text-sm font-medium text-slate-200"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="Password"
-              required
-              className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-emerald-400"
-            />
+          <div className="auth-hero-content">
+            <span className="kicker">Premium Dashboard</span>
+            <h1>Kelola usaha kecil dengan data yang lebih jelas.</h1>
+            <p>
+              Catat transaksi, pantau stok, baca laporan laba rugi, dan tanyakan
+              kondisi bisnis ke AI Assistant dari satu dashboard.
+            </p>
           </div>
 
-          <button
-            type="submit"
-            className="w-full rounded-xl bg-emerald-400 px-4 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
-          >
-            Masuk
-          </button>
-        </form>
+          <div className="auth-feature-grid">
+            <div className="auth-feature">
+              <strong>Transaksi</strong>
+              <small>Pemasukan dan pengeluaran harian tercatat rapi.</small>
+            </div>
 
-        <p className="mt-6 text-sm text-slate-300">
-          Belum punya akun?{" "}
-          <Link href="/register" className="font-semibold text-emerald-300">
-            Daftar
-          </Link>
-        </p>
+            <div className="auth-feature">
+              <strong>Stok</strong>
+              <small>Produk stok rendah lebih cepat terlihat.</small>
+            </div>
+
+            <div className="auth-feature">
+              <strong>AI Insight</strong>
+              <small>Assistant membaca data usaha yang kamu input.</small>
+            </div>
+          </div>
+        </section>
+
+        <section className="auth-panel">
+          <article className="card auth-card hover-card">
+            <div className="auth-card-header">
+              <span className="eyebrow">Selamat datang</span>
+              <h2>Masuk ke akun</h2>
+              <p>
+                Gunakan email dan password untuk melanjutkan ke dashboard usaha.
+              </p>
+            </div>
+
+            {params.message ? (
+              <div className="auth-alert success">{params.message}</div>
+            ) : null}
+
+            {params.error ? (
+              <div className="auth-alert error">{params.error}</div>
+            ) : null}
+
+            <form action={login} className="auth-form">
+              <div className="field">
+                <label htmlFor="email">Email</label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="nama@email.com"
+                  required
+                />
+              </div>
+
+              <div className="field">
+                <label htmlFor="password">Password</label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  placeholder="Password"
+                  required
+                />
+              </div>
+
+              <button className="primary-button" type="submit">
+                Masuk
+              </button>
+            </form>
+
+            <p className="auth-footer">
+              Belum punya akun? <Link href="/register">Daftar sekarang</Link>
+            </p>
+          </article>
+        </section>
       </div>
     </main>
   );

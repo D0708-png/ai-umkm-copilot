@@ -246,3 +246,77 @@ export async function seedDemoData() {
 
   redirectWithMessage("Demo data berhasil ditambahkan.");
 }
+
+export async function deleteDemoData() {
+  const { user, business } = await getCurrentUserBusiness();
+
+  if (!user) {
+    redirect("/login?message=Silakan login terlebih dahulu.");
+  }
+
+  if (!business) {
+    redirect("/onboarding/business");
+  }
+
+  const supabase = await createClient();
+
+  const { data: demoProducts } = await supabase
+    .from("products")
+    .select("id")
+    .eq("business_id", business.id)
+    .like("sku", "DEMO-%");
+
+  const demoProductIds = demoProducts?.map((product) => product.id) ?? [];
+
+  if (demoProductIds.length > 0) {
+    const { error: productStockMovementError } = await supabase
+      .from("stock_movements")
+      .delete()
+      .eq("business_id", business.id)
+      .in("product_id", demoProductIds);
+
+    if (productStockMovementError) {
+      redirectWithError("Gagal menghapus riwayat stok demo.");
+    }
+  }
+
+  const { error: stockMovementError } = await supabase
+    .from("stock_movements")
+    .delete()
+    .eq("business_id", business.id)
+    .ilike("note", "DEMO:%");
+
+  if (stockMovementError) {
+    redirectWithError("Gagal menghapus riwayat stok demo.");
+  }
+
+  const { error: transactionError } = await supabase
+    .from("transactions")
+    .delete()
+    .eq("business_id", business.id)
+    .ilike("description", "DEMO:%");
+
+  if (transactionError) {
+    redirectWithError("Gagal menghapus transaksi demo.");
+  }
+
+  const { error: productError } = await supabase
+    .from("products")
+    .delete()
+    .eq("business_id", business.id)
+    .like("sku", "DEMO-%");
+
+  if (productError) {
+    redirectWithError("Gagal menghapus produk demo.");
+  }
+
+  revalidatePath("/dashboard");
+  revalidatePath("/transactions");
+  revalidatePath("/products");
+  revalidatePath("/stocks");
+  revalidatePath("/reports/profit");
+  revalidatePath("/assistant");
+  revalidatePath("/settings");
+
+  redirectWithMessage("Demo data berhasil dihapus.");
+}

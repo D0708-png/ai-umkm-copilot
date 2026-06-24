@@ -1,66 +1,164 @@
+"use client";
+
 import type { ReactNode } from "react";
+import { GsapHoverProvider } from "@/components/ui/gsap-hover-provider";
 import Link from "next/link";
+import { useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
+import {
+  Bell,
+  LogOut,
+  Menu,
+  Plus,
+  Search,
+  Sparkles,
+} from "lucide-react";
 import { logout } from "@/lib/actions/auth";
 import { AppNavigation } from "@/components/layout/app-navigation";
 
 type AppShellProps = {
   children: ReactNode;
+  businessName?: string;
 };
 
-export function AppShell({ children }: AppShellProps) {
+const pageMeta = [
+  {
+    match: "/dashboard",
+    title: "Dashboard",
+    description:
+      "Ringkasan performa hari ini, rekomendasi AI, dan sinyal bisnis yang perlu dipantau.",
+  },
+  {
+    match: "/transactions",
+    title: "Transaksi",
+    description: "Catat dan pantau pemasukan serta pengeluaran usaha.",
+  },
+  {
+    match: "/products",
+    title: "Produk",
+    description: "Kelola katalog produk, margin, dan stok minimum secara cepat.",
+  },
+  {
+    match: "/stocks",
+    title: "Stok",
+    description:
+      "Pantau stok masuk, stok keluar, dan prioritas restock untuk produk usaha.",
+  },
+  {
+    match: "/reports",
+    title: "Laporan Laba Rugi",
+    description:
+      "Laporan visual untuk membantu pemilik melihat sumber laba dan biaya terbesar.",
+  },
+  {
+    match: "/assistant",
+    title: "AI Assistant",
+    description: "Tanya kondisi bisnis dengan bahasa sehari-hari.",
+  },
+  {
+    match: "/settings",
+    title: "Pengaturan",
+    description: "Kelola profil bisnis, preferensi, dan data demo.",
+  },
+  {
+    match: "/onboarding",
+    title: "Profil Usaha",
+    description: "Lengkapi profil bisnis agar aplikasi bisa digunakan.",
+  },
+];
+
+const rupiah = new Intl.NumberFormat("id-ID");
+
+function formatValue(value: number, prefix = "", suffix = "") {
+  return `${prefix}${rupiah.format(Math.round(value))}${suffix}`;
+}
+
+export function AppShell({ children, businessName = "AI UMKM" }: AppShellProps) {
+  const pathname = usePathname();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const meta = useMemo(() => {
+    return (
+      pageMeta.find((item) => pathname.startsWith(item.match)) ?? pageMeta[0]
+    );
+  }, [pathname]);
+
   return (
-    <div className="min-h-screen bg-slate-100">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-slate-200 bg-white px-5 py-6 lg:flex lg:flex-col">
-        <Link href="/dashboard" className="block">
-          <p className="text-sm font-medium text-emerald-700">
-            AI UMKM Co-Pilot
-          </p>
-          <h1 className="mt-1 text-xl font-bold text-slate-950">
-            UMKM Dashboard
-          </h1>
+    <div className="app-shell">
+      <aside className={`sidebar ${sidebarOpen ? "is-open" : ""}`} id="sidebar">
+        <Link href="/dashboard" className="brand" onClick={() => setSidebarOpen(false)}>
+          <div className="brand-mark" aria-hidden="true">
+            <Sparkles />
+          </div>
+          <div className="brand-copy">
+            <span>AI UMKM</span>
+            <strong>Co-Pilot</strong>
+          </div>
         </Link>
 
-        <div className="mt-8 flex-1">
-          <AppNavigation />
-        </div>
+        <AppNavigation onNavigate={() => setSidebarOpen(false)} />
 
-        <form action={logout}>
-          <button
-            type="submit"
-            className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-          >
-            Keluar
-          </button>
-        </form>
-      </aside>
-
-      <div className="lg:pl-72">
-        <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 px-6 py-4 backdrop-blur lg:hidden">
-          <div className="flex items-center justify-between gap-4">
-            <Link href="/dashboard">
-              <p className="text-xs font-medium text-emerald-700">
-                AI UMKM Co-Pilot
-              </p>
-              <p className="font-bold text-slate-950">UMKM Dashboard</p>
-            </Link>
+        <div className="sidebar-footer">
+          <div className="mini-card">
+            <div className="health">
+              <span className="pulse" />
+              Bisnis sehat
+            </div>
+            <small>
+              AI membaca penjualan, stok, dan pengeluaran usaha setiap hari.
+            </small>
 
             <form action={logout}>
-              <button
-                type="submit"
-                className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700"
-              >
-                Keluar
+              <button className="ghost-button" type="submit">
+                <LogOut /> Keluar
               </button>
             </form>
           </div>
-        </header>
+        </div>
+      </aside>
 
-        <div className="pb-24 lg:pb-0">{children}</div>
-      </div>
+      <main className="main">
+        <div className="topbar">
+          <div className="page-title">
+            <span className="eyebrow">{businessName}</span>
+            <h1 id="pageHeading">{meta.title}</h1>
+            <p id="pageDescription">{meta.description}</p>
+          </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white px-3 py-3 shadow-lg lg:hidden">
-        <AppNavigation variant="bottom" />
-      </div>
+          <GsapHoverProvider />
+
+          <div className="toolbar">
+            <button
+              className="icon-button mobile-toggle"
+              type="button"
+              aria-label="Buka menu"
+              onClick={() => setSidebarOpen((value) => !value)}
+            >
+              <Menu />
+            </button>
+
+            <div className="search-box" role="search">
+              <Search />
+              <input
+                type="search"
+                aria-label="Cari data bisnis"
+                placeholder="Cari produk, transaksi, laporan..."
+              />
+            </div>
+
+            <button className="icon-button" type="button" aria-label="Notifikasi">
+              <Bell />
+            </button>
+
+            <Link href="/transactions/new" className="primary-button">
+              <Plus />
+              <span>Tambah Transaksi</span>
+            </Link>
+          </div>
+        </div>
+
+        {children}
+      </main>
     </div>
   );
 }

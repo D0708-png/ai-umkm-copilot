@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Sparkles } from "lucide-react";
 import { register } from "@/lib/actions/auth";
 
 type RegisterPageProps = {
@@ -13,84 +14,105 @@ export default async function RegisterPage({
   const params = await searchParams;
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 px-6 text-white">
-      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 p-8">
-        <div>
-          <p className="text-sm font-medium text-emerald-300">
-            AI UMKM Co-Pilot
-          </p>
-          <h1 className="mt-2 text-2xl font-bold">Daftar</h1>
-          <p className="mt-2 text-sm leading-6 text-slate-300">
-            Buat akun untuk mulai mencatat dan memahami kondisi bisnis.
-          </p>
-        </div>
+    <main className="auth-page">
+      <div className="auth-shell">
+        <section className="auth-hero hover-card">
+          <div className="auth-brand">
+            <div className="brand-mark" aria-hidden="true">
+              <Sparkles />
+            </div>
 
-        {params.error ? (
-          <div className="mt-6 rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-200">
-            {params.error}
-          </div>
-        ) : null}
-
-        <form action={register} className="mt-6 space-y-4">
-          <div>
-            <label htmlFor="name" className="text-sm font-medium text-slate-200">
-              Nama
-            </label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              placeholder="Nama kamu"
-              required
-              className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-emerald-400"
-            />
+            <div className="auth-brand-text">
+              <span>AI UMKM</span>
+              <strong>Co-Pilot</strong>
+            </div>
           </div>
 
-          <div>
-            <label htmlFor="email" className="text-sm font-medium text-slate-200">
-              Email
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="nama@email.com"
-              required
-              className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-emerald-400"
-            />
+          <div className="auth-hero-content">
+            <span className="kicker">Mulai dari data sederhana</span>
+            <h1>Bangun kebiasaan mencatat usaha dari hari pertama.</h1>
+            <p>
+              Cocok untuk UMKM yang ingin memahami pemasukan, pengeluaran, stok,
+              dan estimasi laba tanpa spreadsheet rumit.
+            </p>
           </div>
 
-          <div>
-            <label
-              htmlFor="password"
-              className="text-sm font-medium text-slate-200"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="Minimal 6 karakter"
-              required
-              className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-emerald-400"
-            />
+          <div className="auth-feature-grid">
+            <div className="auth-feature">
+              <strong>Gratis untuk MVP</strong>
+              <small>Siapkan akun dan langsung buat profil usaha.</small>
+            </div>
+
+            <div className="auth-feature">
+              <strong>Data Privat</strong>
+              <small>Data user dibatasi berdasarkan pemilik usaha.</small>
+            </div>
+
+            <div className="auth-feature">
+              <strong>Siap Deploy</strong>
+              <small>Stack sudah disiapkan untuk Vercel dan Supabase.</small>
+            </div>
           </div>
+        </section>
 
-          <button
-            type="submit"
-            className="w-full rounded-xl bg-emerald-400 px-4 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
-          >
-            Daftar
-          </button>
-        </form>
+        <section className="auth-panel">
+          <article className="card auth-card hover-card">
+            <div className="auth-card-header">
+              <span className="eyebrow">Buat akun</span>
+              <h2>Daftar AI UMKM</h2>
+              <p>
+                Setelah daftar, kamu akan diarahkan untuk membuat profil usaha.
+              </p>
+            </div>
 
-        <p className="mt-6 text-sm text-slate-300">
-          Sudah punya akun?{" "}
-          <Link href="/login" className="font-semibold text-emerald-300">
-            Masuk
-          </Link>
-        </p>
+            {params.error ? (
+              <div className="auth-alert error">{params.error}</div>
+            ) : null}
+
+            <form action={register} className="auth-form">
+              <div className="field">
+                <label htmlFor="name">Nama</label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  placeholder="Nama kamu"
+                  required
+                />
+              </div>
+
+              <div className="field">
+                <label htmlFor="email">Email</label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="nama@email.com"
+                  required
+                />
+              </div>
+
+              <div className="field">
+                <label htmlFor="password">Password</label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  placeholder="Minimal 6 karakter"
+                  required
+                />
+              </div>
+
+              <button className="primary-button" type="submit">
+                Daftar
+              </button>
+            </form>
+
+            <p className="auth-footer">
+              Sudah punya akun? <Link href="/login">Masuk</Link>
+            </p>
+          </article>
+        </section>
       </div>
     </main>
   );

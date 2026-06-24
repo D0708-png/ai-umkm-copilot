@@ -1,10 +1,12 @@
 import { redirect } from "next/navigation";
+import { Save, Sparkles } from "lucide-react";
 import { createBusinessProfile } from "@/lib/actions/business";
 import { getCurrentUserBusiness } from "@/lib/services/business.service";
 
 type BusinessOnboardingPageProps = {
   searchParams: Promise<{
     error?: string;
+    message?: string;
   }>;
 };
 
@@ -24,109 +26,161 @@ export default async function BusinessOnboardingPage({
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 px-6 py-10 text-white">
-      <div className="w-full max-w-2xl rounded-2xl border border-white/10 bg-white/5 p-8">
-        <div>
-          <p className="text-sm font-medium text-emerald-300">
-            AI UMKM Co-Pilot
-          </p>
-          <h1 className="mt-2 text-2xl font-bold">Buat Profil Usaha</h1>
-          <p className="mt-2 text-sm leading-6 text-slate-300">
-            Lengkapi data usaha agar transaksi, produk, stok, dan laporan kamu
-            tersimpan dengan rapi.
-          </p>
-        </div>
+    <section
+      className="content-section is-active"
+      id="onboarding-business"
+      data-title="Profil Usaha"
+      data-desc="Lengkapi profil bisnis sebelum masuk ke dashboard."
+    >
+      <div className="grid stat-grid">
+        <article className="card stat-card hover-card">
+          <span className="stat-label">Langkah 1</span>
+          <div className="stat-value">Profil</div>
+          <p>Isi nama, jenis, mata uang, dan lokasi usaha.</p>
+        </article>
 
-        {params.error ? (
-          <div className="mt-6 rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-200">
-            {params.error}
-          </div>
-        ) : null}
+        <article className="card stat-card hover-card">
+          <span className="stat-label">Langkah 2</span>
+          <div className="stat-value">Kategori</div>
+          <p>Kategori default akan dibuat otomatis.</p>
+        </article>
 
-        <form action={createBusinessProfile} className="mt-6 space-y-5">
-          <div>
-            <label htmlFor="name" className="text-sm font-medium text-slate-200">
-              Nama Usaha
-            </label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              placeholder="Contoh: Warung Bu Ani"
-              required
-              className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-emerald-400"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="business_type"
-              className="text-sm font-medium text-slate-200"
-            >
-              Jenis Usaha
-            </label>
-            <select
-              id="business_type"
-              name="business_type"
-              required
-              defaultValue=""
-              className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-white outline-none focus:border-emerald-400"
-            >
-              <option value="" disabled>
-                Pilih jenis usaha
-              </option>
-              <option value="Makanan dan Minuman">Makanan dan Minuman</option>
-              <option value="Toko Kelontong">Toko Kelontong</option>
-              <option value="Online Seller">Online Seller</option>
-              <option value="Reseller">Reseller</option>
-              <option value="Fashion">Fashion</option>
-              <option value="Jasa">Jasa</option>
-              <option value="Produk Digital">Produk Digital</option>
-              <option value="Lainnya">Lainnya</option>
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="currency"
-              className="text-sm font-medium text-slate-200"
-            >
-              Mata Uang
-            </label>
-            <select
-              id="currency"
-              name="currency"
-              defaultValue="IDR"
-              className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-white outline-none focus:border-emerald-400"
-            >
-              <option value="IDR">IDR — Rupiah Indonesia</option>
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="location"
-              className="text-sm font-medium text-slate-200"
-            >
-              Lokasi Usaha <span className="text-slate-500">(opsional)</span>
-            </label>
-            <input
-              id="location"
-              name="location"
-              type="text"
-              placeholder="Contoh: Bandung"
-              className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-emerald-400"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full rounded-xl bg-emerald-400 px-4 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
-          >
-            Simpan Profil Usaha
-          </button>
-        </form>
+        <article className="card stat-card hover-card">
+          <span className="stat-label">Langkah 3</span>
+          <div className="stat-value">Dashboard</div>
+          <p>Setelah tersimpan, kamu bisa mulai mencatat transaksi.</p>
+        </article>
       </div>
-    </main>
+
+      <div className="grid stock-grid" style={{ marginTop: 18 }}>
+        <article className="card form-card hover-card">
+          <div className="panel-header">
+            <div>
+              <span className="eyebrow">Onboarding</span>
+              <h2>Buat Profil Usaha</h2>
+              <p>
+                Profil ini menjadi pusat data untuk transaksi, produk, stok,
+                laporan, dan AI Assistant.
+              </p>
+            </div>
+          </div>
+
+          {params.message ? (
+            <div className="auth-alert success">{params.message}</div>
+          ) : null}
+
+          {params.error ? (
+            <div className="auth-alert error">{params.error}</div>
+          ) : null}
+
+          <form action={createBusinessProfile} className="auth-form">
+            <div className="field">
+              <label htmlFor="name">Nama Usaha</label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                placeholder="Contoh: Warung Bu Ani"
+                required
+              />
+            </div>
+
+            <div className="field">
+              <label htmlFor="business_type">Jenis Usaha</label>
+              <select
+                id="business_type"
+                name="business_type"
+                required
+                defaultValue=""
+              >
+                <option value="" disabled>
+                  Pilih jenis usaha
+                </option>
+                <option value="Makanan dan Minuman">Makanan dan Minuman</option>
+                <option value="Toko Kelontong">Toko Kelontong</option>
+                <option value="Online Seller">Online Seller</option>
+                <option value="Reseller">Reseller</option>
+                <option value="Fashion">Fashion</option>
+                <option value="Jasa">Jasa</option>
+                <option value="Produk Digital">Produk Digital</option>
+                <option value="Lainnya">Lainnya</option>
+              </select>
+            </div>
+
+            <div className="field">
+              <label htmlFor="currency">Mata Uang</label>
+              <select id="currency" name="currency" defaultValue="IDR">
+                <option value="IDR">IDR — Rupiah Indonesia</option>
+              </select>
+            </div>
+
+            <div className="field">
+              <label htmlFor="location">Lokasi Usaha</label>
+              <input
+                id="location"
+                name="location"
+                type="text"
+                placeholder="Contoh: Bandung"
+              />
+            </div>
+
+            <button className="primary-button" type="submit">
+              <Save />
+              Simpan Profil Usaha
+            </button>
+          </form>
+        </article>
+
+        <aside className="insight-card hover-card">
+          <span className="kicker">AI UMKM Co-Pilot</span>
+
+          <h2>Profil usaha membuat dashboard lebih personal.</h2>
+
+          <p>
+            Setelah profil dibuat, sistem akan menyiapkan kategori default untuk
+            pemasukan dan pengeluaran. Data ini akan dipakai oleh dashboard,
+            laporan laba rugi, stok, dan AI Assistant.
+          </p>
+
+          <div className="ai-summary">
+            <small className="kicker">Akan disiapkan otomatis</small>
+            <strong>Kategori Default</strong>
+
+            <div className="progress-list">
+              <div className="progress-item">
+                <div className="progress-row">
+                  <span>Pemasukan</span>
+                  <span>Produk, jasa, lainnya</span>
+                </div>
+                <div className="progress-track">
+                  <span className="progress-fill" style={{ width: "100%" }} />
+                </div>
+              </div>
+
+              <div className="progress-item">
+                <div className="progress-row">
+                  <span>Pengeluaran</span>
+                  <span>Bahan, operasional, gaji</span>
+                </div>
+                <div className="progress-track">
+                  <span className="progress-fill" style={{ width: "100%" }} />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="auth-brand" style={{ marginTop: 18 }}>
+            <div className="brand-mark" aria-hidden="true">
+              <Sparkles />
+            </div>
+
+            <div className="auth-brand-text">
+              <span>Next step</span>
+              <strong>Mulai dari transaksi pertama</strong>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
   );
 }

@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AnimatedCounter } from "@/components/ui/animated-counter";
+import { Coffee, Package, Plus, Trash2 } from "lucide-react";
 import { deleteProduct } from "@/lib/actions/product";
 import { getProductsPageData } from "@/lib/services/product.service";
-import { formatCurrency } from "@/lib/utils/format";
 
 type ProductsPageProps = {
   searchParams: Promise<{
@@ -10,6 +11,8 @@ type ProductsPageProps = {
     message?: string;
   }>;
 };
+
+const rupiah = new Intl.NumberFormat("id-ID");
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const params = await searchParams;
@@ -24,167 +27,145 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   }
 
   return (
-    <main className="min-h-screen bg-slate-100 px-6 py-8">
-      <section className="mx-auto max-w-6xl">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="text-sm font-medium text-emerald-700">
-              AI UMKM Co-Pilot
-            </p>
-            <h1 className="mt-1 text-3xl font-bold text-slate-950">Produk</h1>
-            <p className="mt-2 text-slate-600">
-              Kelola daftar produk usaha{" "}
-              <span className="font-semibold text-slate-950">
-                {business.name}
-              </span>
-              .
-            </p>
-          </div>
-
-          <Link
-            href="/products/new"
-            className="rounded-xl bg-emerald-500 px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-emerald-600"
-          >
-            Tambah Produk
-          </Link>
-        </div>
-
-        {params.message ? (
-          <div className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+    <section
+      className="content-section is-active"
+      id="produk"
+      data-title="Produk"
+      data-desc="Kelola katalog produk, margin, dan stok minimum secara cepat."
+    >
+      {params.message ? (
+        <div className="card" style={{ marginBottom: 18, padding: 16 }}>
+          <p style={{ color: "#047857", fontWeight: 800 }}>
             {params.message}
-          </div>
-        ) : null}
-
-        {params.error ? (
-          <div className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-            {params.error}
-          </div>
-        ) : null}
-
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Jumlah Produk</p>
-            <p className="mt-2 text-2xl font-bold text-slate-950">
-              {summary.productCount} produk
-            </p>
-          </div>
-
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Produk Stok Rendah</p>
-            <p className="mt-2 text-2xl font-bold text-slate-950">
-              {summary.lowStockCount} produk
-            </p>
-          </div>
+          </p>
         </div>
+      ) : null}
 
-        <div className="mt-8 overflow-hidden rounded-2xl bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
-            <h2 className="font-bold text-slate-950">Daftar Produk</h2>
+      {params.error ? (
+        <div className="card" style={{ marginBottom: 18, padding: 16 }}>
+          <p style={{ color: "#b91c1c", fontWeight: 800 }}>{params.error}</p>
+        </div>
+      ) : null}
 
-            <Link
-              href="/stocks"
-              className="text-sm font-semibold text-emerald-700 hover:text-emerald-800"
-            >
-              Kelola stok
-            </Link>
+      <div className="grid stat-grid three-stat-grid" style={{ marginBottom: 18 }}>
+        <article className="card stat-card hover-card">
+          <span className="stat-label">Jumlah Produk</span>
+          <div className="stat-value count">
+  <AnimatedCounter value={summary.productCount} suffix=" produk" />
+</div>
+          <p>Total produk yang sudah terdaftar untuk usaha ini.</p>
+        </article>
+
+        <article className="card stat-card hover-card">
+          <span className="stat-label">Produk Stok Rendah</span>
+          <div className="stat-value count">
+  <AnimatedCounter value={summary.lowStockCount} suffix=" produk" />
+</div>
+          <p>Produk dengan stok saat ini di bawah atau sama dengan minimum stok.</p>
+        </article>
+
+        <article className="card stat-card hover-card">
+          <span className="stat-label">Aksi Produk</span>
+          <div className="stat-value">Katalog</div>
+          <p>Tambah, pantau, dan hapus produk dari satu halaman.</p>
+        </article>
+      </div>
+
+      <div style={{ marginBottom: 18, display: "flex", justifyContent: "flex-end" }}>
+        <Link href="/products/new" className="primary-button">
+          <Plus />
+          Tambah Produk
+        </Link>
+      </div>
+
+      {products.length === 0 ? (
+        <article className="card table-card hover-card">
+          <div className="panel-header">
+            <div>
+              <h2>Daftar Produk</h2>
+              <p>Belum ada produk yang dicatat.</p>
+            </div>
           </div>
 
-          {products.length === 0 ? (
-            <div className="px-6 py-12 text-center">
-              <p className="font-semibold text-slate-950">
-                Belum ada produk.
-              </p>
-              <p className="mt-2 text-sm text-slate-600">
-                Tambahkan produk pertama untuk mulai mengelola stok.
-              </p>
-              <Link
-                href="/products/new"
-                className="mt-6 inline-flex rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600"
-              >
-                Tambah Produk
+          <div className="list">
+            <div className="data-row">
+              <div className="row-title">
+                <span className="tag info">Kosong</span>
+                <strong>Belum ada produk</strong>
+                <small>Tambahkan produk pertama untuk mulai mengelola stok.</small>
+              </div>
+
+              <span className="amount">0 produk</span>
+
+              <Link href="/products/new" className="ghost-button">
+                Tambah
               </Link>
             </div>
-          ) : (
-            <div className="divide-y divide-slate-100">
-              {products.map((product) => {
-                const isLowStock =
-                  Number(product.current_stock) <= Number(product.minimum_stock);
+          </div>
+        </article>
+      ) : (
+        <div className="grid product-grid">
+          {products.map((product, index) => {
+            const currentStock = Number(product.current_stock);
+            const minimumStock = Number(product.minimum_stock);
+            const costPrice = Number(product.cost_price);
+            const sellingPrice = Number(product.selling_price);
+            const margin = sellingPrice - costPrice;
+            const isLowStock = currentStock <= minimumStock;
+            const isHighMargin = margin > 0 && margin >= costPrice;
 
-                return (
-                  <div
-                    key={product.id}
-                    className="flex flex-col gap-4 px-6 py-4 lg:flex-row lg:items-center lg:justify-between"
-                  >
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-semibold text-slate-950">
-                          {product.name}
-                        </p>
-
-                        {isLowStock ? (
-                          <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
-                            Stok rendah
-                          </span>
-                        ) : null}
-                      </div>
-
-                      <p className="mt-1 text-sm text-slate-500">
-                        SKU: {product.sku || "-"}
-                      </p>
-                    </div>
-
-                    <div className="grid gap-4 sm:grid-cols-4 lg:min-w-[640px]">
-                      <div>
-                        <p className="text-xs text-slate-500">Modal</p>
-                        <p className="font-semibold text-slate-950">
-                          {formatCurrency(Number(product.cost_price))}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="text-xs text-slate-500">Harga Jual</p>
-                        <p className="font-semibold text-slate-950">
-                          {formatCurrency(Number(product.selling_price))}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="text-xs text-slate-500">Stok</p>
-                        <p className="font-semibold text-slate-950">
-                          {product.current_stock} / min {product.minimum_stock}
-                        </p>
-                      </div>
-
-                      <form action={deleteProduct}>
-                        <input
-                          type="hidden"
-                          name="product_id"
-                          value={product.id}
-                        />
-                        <button
-                          type="submit"
-                          className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
-                        >
-                          Hapus
-                        </button>
-                      </form>
-                    </div>
+            return (
+              <article className="card product-card hover-card" key={product.id}>
+                <div className="product-head">
+                  <div className="product-icon">
+                    {index % 2 === 0 ? <Coffee /> : <Package />}
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
 
-        <div className="mt-8">
-          <Link
-            href="/dashboard"
-            className="text-sm font-semibold text-emerald-700 hover:text-emerald-800"
-          >
-            ← Kembali ke Dashboard
-          </Link>
+                  {isLowStock ? (
+                    <span className="tag warning">Stok rendah</span>
+                  ) : isHighMargin ? (
+                    <span className="tag info">Margin tinggi</span>
+                  ) : (
+                    <span className="tag income">Aman</span>
+                  )}
+                </div>
+
+                <div>
+                  <h2>{product.name}</h2>
+                  <p>SKU: {product.sku || "-"} • Produk usaha</p>
+                </div>
+
+                <div className="product-meta">
+                  <div className="mini-stat">
+                    <small>Modal</small>
+                    <strong>Rp {rupiah.format(costPrice)}</strong>
+                  </div>
+
+                  <div className="mini-stat">
+                    <small>Jual</small>
+                    <strong>Rp {rupiah.format(sellingPrice)}</strong>
+                  </div>
+
+                  <div className="mini-stat">
+                    <small>Stok</small>
+                    <strong>
+                      {currentStock} / min {minimumStock}
+                    </strong>
+                  </div>
+                </div>
+
+                <form action={deleteProduct}>
+                  <input type="hidden" name="product_id" value={product.id} />
+                  <button className="ghost-button" type="submit">
+                    <Trash2 />
+                    Hapus Produk
+                  </button>
+                </form>
+              </article>
+            );
+          })}
         </div>
-      </section>
-    </main>
+      )}
+    </section>
   );
 }

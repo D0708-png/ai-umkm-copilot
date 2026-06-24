@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { ArrowLeft, Save } from "lucide-react";
 import { createProduct } from "@/lib/actions/product";
 import { getProductFormData } from "@/lib/services/product.service";
 
@@ -24,164 +25,187 @@ export default async function NewProductPage({
   }
 
   return (
-    <main className="min-h-screen bg-slate-100 px-6 py-8">
-      <section className="mx-auto max-w-3xl">
-        <div>
-          <p className="text-sm font-medium text-emerald-700">
-            AI UMKM Co-Pilot
-          </p>
-          <h1 className="mt-1 text-3xl font-bold text-slate-950">
-            Tambah Produk
-          </h1>
-          <p className="mt-2 text-slate-600">
-            Tambahkan produk untuk usaha{" "}
-            <span className="font-semibold text-slate-950">
-              {business.name}
-            </span>
-            .
-          </p>
+    <section
+      className="content-section is-active"
+      id="produk-baru"
+      data-title="Tambah Produk"
+      data-desc={`Tambahkan produk baru untuk ${business.name}.`}
+    >
+      {params.error ? (
+        <div className="card" style={{ marginBottom: 18, padding: 16 }}>
+          <p style={{ color: "#b91c1c", fontWeight: 800 }}>{params.error}</p>
         </div>
+      ) : null}
 
-        {params.error ? (
-          <div className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-            {params.error}
+      <div className="grid stock-grid">
+        <article className="card form-card hover-card">
+          <div>
+            <h2>Form Produk</h2>
+            <p>
+              Tambahkan produk lengkap dengan harga modal, harga jual, stok
+              awal, dan minimum stok.
+            </p>
           </div>
-        ) : null}
 
-        <form
-          action={createProduct}
-          className="mt-8 rounded-2xl bg-white p-6 shadow-sm"
-        >
-          <div className="space-y-5">
-            <div>
-              <label
-                htmlFor="name"
-                className="text-sm font-medium text-slate-700"
-              >
-                Nama Produk
-              </label>
+          <form action={createProduct} className="form-card" style={{ padding: 0 }}>
+            <div className="field">
+              <label htmlFor="name">Nama Produk</label>
               <input
                 id="name"
                 name="name"
                 type="text"
                 placeholder="Contoh: Es Kopi Susu"
                 required
-                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-950 outline-none focus:border-emerald-500"
               />
             </div>
 
-            <div>
-              <label
-                htmlFor="sku"
-                className="text-sm font-medium text-slate-700"
-              >
-                SKU <span className="text-slate-400">(opsional)</span>
-              </label>
+            <div className="field">
+              <label htmlFor="sku">SKU</label>
               <input
                 id="sku"
                 name="sku"
                 type="text"
                 placeholder="Contoh: EKS-001"
-                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-950 outline-none focus:border-emerald-500"
               />
             </div>
 
-            <div className="grid gap-5 sm:grid-cols-2">
-              <div>
-                <label
-                  htmlFor="cost_price"
-                  className="text-sm font-medium text-slate-700"
-                >
-                  Harga Modal
-                </label>
-                <input
-                  id="cost_price"
-                  name="cost_price"
-                  type="number"
-                  min="0"
-                  step="1"
-                  placeholder="Contoh: 8000"
-                  defaultValue="0"
-                  className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-950 outline-none focus:border-emerald-500"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="selling_price"
-                  className="text-sm font-medium text-slate-700"
-                >
-                  Harga Jual
-                </label>
-                <input
-                  id="selling_price"
-                  name="selling_price"
-                  type="number"
-                  min="0"
-                  step="1"
-                  placeholder="Contoh: 15000"
-                  defaultValue="0"
-                  className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-950 outline-none focus:border-emerald-500"
-                />
-              </div>
+            <div className="field">
+              <label htmlFor="cost_price">Harga Modal</label>
+              <input
+                id="cost_price"
+                name="cost_price"
+                type="number"
+                min="0"
+                step="1"
+                placeholder="Contoh: 8000"
+                defaultValue="0"
+              />
             </div>
 
-            <div className="grid gap-5 sm:grid-cols-2">
-              <div>
-                <label
-                  htmlFor="current_stock"
-                  className="text-sm font-medium text-slate-700"
-                >
-                  Stok Saat Ini
-                </label>
-                <input
-                  id="current_stock"
-                  name="current_stock"
-                  type="number"
-                  min="0"
-                  step="1"
-                  defaultValue="0"
-                  className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-950 outline-none focus:border-emerald-500"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="minimum_stock"
-                  className="text-sm font-medium text-slate-700"
-                >
-                  Minimum Stok
-                </label>
-                <input
-                  id="minimum_stock"
-                  name="minimum_stock"
-                  type="number"
-                  min="0"
-                  step="1"
-                  defaultValue="0"
-                  className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-950 outline-none focus:border-emerald-500"
-                />
-              </div>
+            <div className="field">
+              <label htmlFor="selling_price">Harga Jual</label>
+              <input
+                id="selling_price"
+                name="selling_price"
+                type="number"
+                min="0"
+                step="1"
+                placeholder="Contoh: 15000"
+                defaultValue="0"
+              />
             </div>
-          </div>
 
-          <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-            <Link
-              href="/products"
-              className="rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
-              Batal
-            </Link>
+            <div className="field">
+              <label htmlFor="current_stock">Stok Saat Ini</label>
+              <input
+                id="current_stock"
+                name="current_stock"
+                type="number"
+                min="0"
+                step="1"
+                defaultValue="0"
+              />
+            </div>
 
-            <button
-              type="submit"
-              className="rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600"
-            >
+            <div className="field">
+              <label htmlFor="minimum_stock">Minimum Stok</label>
+              <input
+                id="minimum_stock"
+                name="minimum_stock"
+                type="number"
+                min="0"
+                step="1"
+                defaultValue="0"
+              />
+            </div>
+
+            <button className="primary-button" type="submit">
+              <Save />
               Simpan Produk
             </button>
+          </form>
+        </article>
+
+        <article className="card hover-card">
+          <div className="panel-header">
+            <div>
+              <h2>Panduan Produk</h2>
+              <p>
+                Data produk akan dipakai oleh stok, dashboard, laporan sederhana,
+                dan AI Assistant.
+              </p>
+            </div>
           </div>
-        </form>
-      </section>
-    </main>
+
+          <div className="stock-list">
+            <div className="stock-row">
+              <div className="row-title">
+                <strong>Harga modal</strong>
+                <small>
+                  Dipakai untuk menghitung margin produk secara sederhana.
+                </small>
+                <div className="bar">
+                  <span
+                    style={
+                      {
+                        "--w": "100%",
+                        "--bar": "var(--emerald)",
+                      } as React.CSSProperties
+                    }
+                  />
+                </div>
+              </div>
+              <span className="tag income">Margin</span>
+            </div>
+
+            <div className="stock-row">
+              <div className="row-title">
+                <strong>Harga jual</strong>
+                <small>
+                  Dipakai untuk membandingkan potensi laba per produk.
+                </small>
+                <div className="bar">
+                  <span
+                    style={
+                      {
+                        "--w": "100%",
+                        "--bar": "var(--teal)",
+                      } as React.CSSProperties
+                    }
+                  />
+                </div>
+              </div>
+              <span className="tag info">Harga</span>
+            </div>
+
+            <div className="stock-row">
+              <div className="row-title">
+                <strong>Minimum stok</strong>
+                <small>
+                  Produk akan ditandai stok rendah jika stok saat ini kurang
+                  atau sama dengan minimum stok.
+                </small>
+                <div className="bar">
+                  <span
+                    style={
+                      {
+                        "--w": "100%",
+                        "--bar": "var(--amber)",
+                      } as React.CSSProperties
+                    }
+                  />
+                </div>
+              </div>
+              <span className="tag warning">Restock</span>
+            </div>
+
+            <Link href="/products" className="ghost-button">
+              <ArrowLeft />
+              Kembali ke Produk
+            </Link>
+          </div>
+        </article>
+      </div>
+    </section>
   );
 }

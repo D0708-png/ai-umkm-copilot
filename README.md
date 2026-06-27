@@ -8,8 +8,6 @@ Aplikasi ini dirancang untuk pemilik usaha kecil yang membutuhkan dashboard sede
 
 Production: `https://ai-umkm-copilot.vercel.app`
 
-Ganti URL di atas dengan domain Vercel production kamu.
-
 ## Highlights
 
 - Dashboard ringkasan penjualan, pengeluaran, laba, stok rendah, dan aktivitas terbaru.
@@ -23,8 +21,6 @@ Ganti URL di atas dengan domain Vercel production kamu.
 - UI premium dengan responsive foundation, route loading indicator, animated counter, dan GSAP hover interaction.
 
 ## Screenshots
-
-> Screenshot bisa ditambahkan ke folder `public/screenshots`.
 
 | Register | Dashboard |
 |---|---|

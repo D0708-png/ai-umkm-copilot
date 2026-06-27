@@ -180,10 +180,9 @@ export default async function ProfitReportPage({
                   )}. Coba evaluasi kategori biaya terbesar.`}
           </p>
 
-          <button className="primary-button" type="button">
-            <Download />
-            Unduh Laporan
-          </button>
+          <Link href="/transactions" className="primary-button">
+              Lihat Detail Transaksi    
+          </Link>
         </article>
       </div>
 

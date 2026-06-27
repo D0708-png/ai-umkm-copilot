@@ -27,44 +27,44 @@ const pageMeta = [
     match: "/dashboard",
     title: "Dashboard",
     description:
-      "Ringkasan performa hari ini, rekomendasi AI, dan sinyal bisnis yang perlu dipantau.",
+      "Pantau penjualan, pengeluaran, stok, dan aktivitas usaha dalam satu tampilan.",
   },
   {
     match: "/transactions",
     title: "Transaksi",
-    description: "Catat dan pantau pemasukan serta pengeluaran usaha.",
+    description: "Kelola pemasukan dan pengeluaran usaha secara rapi.",
   },
   {
     match: "/products",
     title: "Produk",
-    description: "Kelola katalog produk, margin, dan stok minimum secara cepat.",
+    description: "Kelola katalog produk, harga modal, harga jual, dan stok.",
   },
   {
     match: "/stocks",
     title: "Stok",
     description:
-      "Pantau stok masuk, stok keluar, dan prioritas restock untuk produk usaha.",
+      "Catat stok masuk, stok keluar, dan produk yang perlu segera diisi ulang.",
   },
   {
     match: "/reports",
     title: "Laporan Laba Rugi",
     description:
-      "Laporan visual untuk membantu pemilik melihat sumber laba dan biaya terbesar.",
+      "Lihat ringkasan pemasukan, pengeluaran, dan estimasi laba usaha.",
   },
   {
     match: "/assistant",
     title: "AI Assistant",
-    description: "Tanya kondisi bisnis dengan bahasa sehari-hari.",
+    description: "Tanyakan kondisi usaha berdasarkan data yang sudah dicatat.",
   },
   {
     match: "/settings",
     title: "Pengaturan",
-    description: "Kelola profil bisnis, preferensi, dan data demo.",
+    description: "Kelola profil usaha, mode contoh data, dan kontrol data.",
   },
   {
     match: "/onboarding",
     title: "Profil Usaha",
-    description: "Lengkapi profil bisnis agar aplikasi bisa digunakan.",
+    description: "Lengkapi profil usaha untuk mulai menggunakan aplikasi.",
   },
 ];
 
@@ -126,7 +126,7 @@ export function AppShell({
             </div>
 
             <small>
-              AI membaca penjualan, stok, dan pengeluaran usaha setiap hari.
+              Pantau transaksi, stok, dan laporan usaha dari satu dashboard.
             </small>
 
             <form action={logout}>

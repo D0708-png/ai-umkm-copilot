@@ -52,8 +52,8 @@ export default async function AssistantPage({
             <div>
               <h2>Ruang Konsultasi AI</h2>
               <p>
-                UI percakapan bersih dengan jawaban berbasis data bisnis yang
-                sudah dicatat.
+                  Ajukan pertanyaan tentang pemasukan, pengeluaran, stok, margin produk, dan
+                  kondisi usaha berdasarkan data yang sudah dicatat.
               </p>
             </div>
           </div>

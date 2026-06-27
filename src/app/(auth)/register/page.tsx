@@ -39,19 +39,19 @@ export default async function RegisterPage({
 
           <div className="auth-feature-grid">
             <div className="auth-feature">
-              <strong>Gratis untuk MVP</strong>
-              <small>Siapkan akun dan langsung buat profil usaha.</small>
-            </div>
+            <strong>Mulai Cepat</strong>
+            <small>Buat akun, lengkapi profil usaha, lalu mulai mencatat transaksi.</small>
+          </div>
 
-            <div className="auth-feature">
-              <strong>Data Privat</strong>
-              <small>Data user dibatasi berdasarkan pemilik usaha.</small>
-            </div>
+          <div className="auth-feature">
+          <strong>Data Usaha Rapi</strong>
+          <small>Pemasukan, pengeluaran, produk, dan stok tersusun dalam satu tempat.</small>
+          </div>
 
-            <div className="auth-feature">
-              <strong>Siap Deploy</strong>
-              <small>Stack sudah disiapkan untuk Vercel dan Supabase.</small>
-            </div>
+          <div className="auth-feature">
+          <strong>Insight Bisnis</strong>
+          <small>Lihat ringkasan usaha dan tanyakan kondisi bisnis ke assistant.</small>
+          </div>
           </div>
         </section>
 

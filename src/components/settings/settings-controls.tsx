@@ -97,17 +97,16 @@ export function DemoDataControls() {
     <article className="card hover-card">
       <div className="panel-header">
         <div>
-          <h2>Data Demo</h2>
+          <h2>Contoh Data</h2>
           <p>
-            Tampilkan panel ini hanya saat kamu ingin menambahkan atau menghapus
-            data demo.
+            Aktifkan panel ini untuk mengisi atau membersihkan contoh data usaha.
           </p>
         </div>
 
         <SliderSwitch
           checked={showDemoData}
           onChange={() => setShowDemoData((value) => !value)}
-          ariaLabel="Tampilkan atau sembunyikan data demo"
+          ariaLabel="Tampilkan atau sembunyikan panel contoh data"
         />
       </div>
 
@@ -115,22 +114,22 @@ export function DemoDataControls() {
         <div className="quick-actions">
           <form action={seedDemoData}>
             <button className="primary-button" type="submit">
-              Tambahkan Demo Data
+              Isi Contoh Data
             </button>
           </form>
 
           <form action={deleteDemoData}>
             <button className="ghost-button danger-button" type="submit">
-              Hapus Demo Data
+              Bersihkan Contoh Data
             </button>
           </form>
 
           <div className="stock-row">
             <div className="row-title">
-              <strong>Isi demo</strong>
+              <strong>Isi contoh</strong>
               <small>
-                3 produk demo, stok awal, transaksi bulan ini, dan transaksi
-                pembanding bulan lalu.
+                Produk, stok awal, transaksi bulan ini, dan transaksi pembanding
+                untuk membantu mencoba fitur aplikasi.
               </small>
               <div className="bar">
                 <span
@@ -151,7 +150,6 @@ export function DemoDataControls() {
     </article>
   );
 }
-
 export function DangerZone() {
   const [showWarning, setShowWarning] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -161,12 +159,11 @@ export function DangerZone() {
       <article className="card danger-zone-card hover-card">
         <div className="panel-header">
           <div>
-            <h2>Hapus Seluruh Data</h2>
-            <p>
-              Menghapus seluruh data usaha yang pernah kamu input ke Supabase.
-              Akun login tetap ada, tetapi profil usaha dan data bisnis akan
-              hilang.
-            </p>
+            <h2>Yakin ingin menghapus seluruh data usaha?</h2>
+              <p>
+                  Semua data usaha yang tersimpan akan dihapus permanen. Tindakan ini tidak
+                  bisa dibatalkan.
+              </p>
           </div>
         </div>
 

@@ -14,9 +14,9 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "AI UMKM Co-Pilot",
+  title: "AI UMKM Co-Pilot — Keuangan, Stok, dan Insight Usaha",
   description:
-    "Aplikasi manajemen keuangan, stok, dan AI assistant untuk UMKM kecil.",
+    "Aplikasi untuk membantu UMKM mencatat transaksi, mengelola stok, membaca laporan laba rugi, dan memahami kondisi usaha dengan assistant berbasis data.",
 };
 
 export default function RootLayout({

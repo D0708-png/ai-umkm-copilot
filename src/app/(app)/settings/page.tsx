@@ -41,7 +41,7 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
       className="content-section is-active"
       id="pengaturan"
       data-title="Pengaturan"
-      data-desc="Kelola profil bisnis, preferensi notifikasi, dan data demo."
+      data-desc="Kelola profil usaha, mode contoh data, dan kontrol data aplikasi."
     >
       {params.message ? (
         <div className="card" style={{ marginBottom: 18, padding: 16 }}>
@@ -85,7 +85,7 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
             </div>
 
             <div className="mini-stat">
-              <small>AI Status</small>
+              <small>Assistant</small>
               <strong>Aktif</strong>
             </div>
           </div>
@@ -98,14 +98,14 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
         <DemoDataControls />
 
         <article className="insight-card hover-card">
-          <span className="kicker">Status Sistem</span>
-          <h2>Project siap untuk final UI review.</h2>
-          <p>
-            Auth, profil bisnis, transaksi, produk, stok, laporan, AI Assistant,
-            dan demo data sudah terhubung. Setelah UI selesai, kita lanjutkan
-            build final dan deploy ke Vercel.
-          </p>
-        </article>
+        <span className="kicker">Tentang Aplikasi</span>
+        <h2>AI UMKM Co-Pilot membantu pemilik usaha membaca kondisi bisnis lebih cepat.</h2>
+        <p>
+            Gunakan aplikasi ini untuk mencatat transaksi, memantau stok, membaca
+            laporan laba rugi, dan mendapatkan insight usaha berdasarkan data yang
+            kamu input.
+        </p>
+      </article>
       </div>
 
       <div style={{ marginTop: 18 }}>

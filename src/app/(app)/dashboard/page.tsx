@@ -198,40 +198,87 @@ export default async function DashboardPage() {
                 : "Cek pengeluaran terbesar dan evaluasi transaksi terbaru agar arus kas kembali positif."}
           </p>
 
-          <div className="ai-summary">
-            <small className="kicker">Target harian</small>
-            <strong className="count">
-  <AnimatedCounter value={dailyTarget} prefix="Rp " />
-</strong>
+          <article className="insight-card hover-card">
+  <span className="kicker">
+    {summary.insightMode === "today"
+      ? "Ringkasan Hari Ini"
+      : "Ringkasan Aktivitas Terbaru"}
+  </span>
 
-            <div className="progress-list">
-              <div className="progress-item">
-                <div className="progress-row">
-                  <span>Penjualan tercapai</span>
-                  <span>{salesProgress}%</span>
-                </div>
-                <div className="progress-track">
-                  <span
-                    className="progress-fill"
-                    style={{ width: `${salesProgress}%` }}
-                  />
-                </div>
-              </div>
+  <h2>
+    {summary.todayTransactionCount === 0
+      ? "Belum ada transaksi yang bisa diringkas."
+      : summary.todayProfit >= 0
+        ? "Arus kas periode ini masih positif."
+        : "Pengeluaran periode ini perlu diperhatikan."}
+  </h2>
 
-              <div className="progress-item">
-                <div className="progress-row">
-                  <span>Efisiensi biaya</span>
-                  <span>{efficiencyProgress}%</span>
-                </div>
-                <div className="progress-track">
-                  <span
-                    className="progress-fill"
-                    style={{ width: `${efficiencyProgress}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+  <p>
+    {summary.insightMode === "today"
+      ? "Berdasarkan transaksi hari ini"
+      : `Berdasarkan transaksi tanggal ${summary.insightDate}`}
+    , penjualan tercatat {formatCurrency(summary.todayIncome)}, pengeluaran{" "}
+    {formatCurrency(summary.todayExpense)}, dan estimasi laba{" "}
+    {formatCurrency(summary.todayProfit)} dari{" "}
+    {summary.todayTransactionCount} transaksi.
+  </p>
+
+  <div className="ai-summary">
+    <small className="kicker">Data Aktual</small>
+
+    <strong>
+      {summary.todayTransactionCount === 0
+        ? "Belum ada aktivitas"
+        : summary.todayProfit >= 0
+          ? "Arus kas masih sehat"
+          : "Pengeluaran lebih besar"}
+    </strong>
+
+    <div className="progress-list">
+      <div className="progress-item">
+        <div className="progress-row">
+          <span>Penjualan</span>
+          <span>{formatCurrency(summary.todayIncome)}</span>
+        </div>
+
+        <div className="progress-track">
+          <span
+            className="progress-fill"
+            style={{
+              width: summary.todayIncome > 0 ? "100%" : "0%",
+            }}
+          />
+        </div>
+      </div>
+
+      <div className="progress-item">
+        <div className="progress-row">
+          <span>Pengeluaran</span>
+          <span>{formatCurrency(summary.todayExpense)}</span>
+        </div>
+
+        <div className="progress-track">
+          <span
+            className="progress-fill"
+            style={{
+              width:
+                summary.todayIncome > 0
+                  ? `${Math.min(
+                      Math.round(
+                        (summary.todayExpense / summary.todayIncome) * 100
+                      ),
+                      100
+                    )}%`
+                  : summary.todayExpense > 0
+                    ? "100%"
+                    : "0%",
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
         </aside>
       </div>
 

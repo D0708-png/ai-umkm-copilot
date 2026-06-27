@@ -4,6 +4,21 @@ function toISODate(date: Date) {
   return date.toISOString().slice(0, 10);
 }
 
+function getJakartaISODate(date = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Jakarta",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+
+  const year = parts.find((part) => part.type === "year")?.value;
+  const month = parts.find((part) => part.type === "month")?.value;
+  const day = parts.find((part) => part.type === "day")?.value;
+
+  return `${year}-${month}-${day}`;
+}
+
 function getCurrentMonthRange() {
   const now = new Date();
 
@@ -32,14 +47,44 @@ function getLast7Days() {
   });
 }
 
+function summarizeTransactions(
+  transactions:
+    | {
+        type: string;
+        amount: number | string;
+        transaction_date?: string;
+      }[]
+    | null
+    | undefined
+) {
+  const rows = transactions ?? [];
+
+  const income = rows
+    .filter((transaction) => transaction.type === "income")
+    .reduce((total, transaction) => total + Number(transaction.amount), 0);
+
+  const expense = rows
+    .filter((transaction) => transaction.type === "expense")
+    .reduce((total, transaction) => total + Number(transaction.amount), 0);
+
+  return {
+    income,
+    expense,
+    profit: income - expense,
+    transactionCount: rows.length,
+  };
+}
+
 export async function getDashboardSummary(businessId: string) {
   const supabase = await createClient();
+
   const { startDate, endDate } = getCurrentMonthRange();
+  const todayDate = getJakartaISODate();
   const last7Days = getLast7Days();
 
   const { data: monthTransactions } = await supabase
     .from("transactions")
-    .select("type, amount")
+    .select("type, amount, transaction_date")
     .eq("business_id", businessId)
     .gte("transaction_date", startDate)
     .lte("transaction_date", endDate);
@@ -59,22 +104,41 @@ export async function getDashboardSummary(businessId: string) {
     .order("created_at", { ascending: false })
     .limit(5);
 
+  const { data: todayTransactions } = await supabase
+    .from("transactions")
+    .select("type, amount, transaction_date")
+    .eq("business_id", businessId)
+    .eq("transaction_date", todayDate);
+
+  const latestTransactionDate = recentTransactions?.[0]?.transaction_date;
+  const shouldUseLatestDate =
+    (todayTransactions?.length ?? 0) === 0 && Boolean(latestTransactionDate);
+
+  const { data: latestDateTransactions } = shouldUseLatestDate
+    ? await supabase
+        .from("transactions")
+        .select("type, amount, transaction_date")
+        .eq("business_id", businessId)
+        .eq("transaction_date", latestTransactionDate)
+    : { data: null };
+
+  const insightTransactions = shouldUseLatestDate
+    ? latestDateTransactions ?? []
+    : todayTransactions ?? [];
+
+  const insightDate = shouldUseLatestDate
+    ? latestTransactionDate ?? todayDate
+    : todayDate;
+
+  const insightMode = shouldUseLatestDate ? "latest" : "today";
+
   const { data: products } = await supabase
     .from("products")
     .select("current_stock, minimum_stock")
     .eq("business_id", businessId);
 
-  const income =
-    monthTransactions
-      ?.filter((transaction) => transaction.type === "income")
-      .reduce((total, transaction) => total + Number(transaction.amount), 0) ??
-    0;
-
-  const expense =
-    monthTransactions
-      ?.filter((transaction) => transaction.type === "expense")
-      .reduce((total, transaction) => total + Number(transaction.amount), 0) ??
-    0;
+  const monthSummary = summarizeTransactions(monthTransactions);
+  const insightSummary = summarizeTransactions(insightTransactions);
 
   const chartData = last7Days.map((day) => {
     const dailyTransactions =
@@ -82,18 +146,12 @@ export async function getDashboardSummary(businessId: string) {
         (transaction) => transaction.transaction_date === day.date
       ) ?? [];
 
-    const dailyIncome = dailyTransactions
-      .filter((transaction) => transaction.type === "income")
-      .reduce((total, transaction) => total + Number(transaction.amount), 0);
-
-    const dailyExpense = dailyTransactions
-      .filter((transaction) => transaction.type === "expense")
-      .reduce((total, transaction) => total + Number(transaction.amount), 0);
+    const dailySummary = summarizeTransactions(dailyTransactions);
 
     return {
       label: day.label,
-      income: dailyIncome,
-      expense: dailyExpense,
+      income: dailySummary.income,
+      expense: dailySummary.expense,
     };
   });
 
@@ -117,12 +175,21 @@ export async function getDashboardSummary(businessId: string) {
       startDate,
       endDate,
     },
-    income,
-    expense,
-    profit: income - expense,
+    income: monthSummary.income,
+    expense: monthSummary.expense,
+    profit: monthSummary.profit,
     last7DaysIncome,
     last7DaysExpense,
     last7DaysProfit: last7DaysIncome - last7DaysExpense,
+
+    todayIncome: insightSummary.income,
+    todayExpense: insightSummary.expense,
+    todayProfit: insightSummary.profit,
+    todayTransactionCount: insightSummary.transactionCount,
+
+    insightDate,
+    insightMode,
+
     lowStock,
     productCount: products?.length ?? 0,
     recentTransactions: recentTransactions ?? [],

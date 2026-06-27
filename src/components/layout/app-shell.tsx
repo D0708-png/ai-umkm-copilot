@@ -1,9 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { GsapHoverProvider } from "@/components/ui/gsap-hover-provider";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
   Bell,
@@ -15,6 +14,8 @@ import {
 } from "lucide-react";
 import { logout } from "@/lib/actions/auth";
 import { AppNavigation } from "@/components/layout/app-navigation";
+import { GsapHoverProvider } from "@/components/ui/gsap-hover-provider";
+import { RouteLoadingIndicator } from "@/components/ui/route-loading-indicator";
 
 type AppShellProps = {
   children: ReactNode;
@@ -67,15 +68,17 @@ const pageMeta = [
   },
 ];
 
-const rupiah = new Intl.NumberFormat("id-ID");
-
-function formatValue(value: number, prefix = "", suffix = "") {
-  return `${prefix}${rupiah.format(Math.round(value))}${suffix}`;
-}
-
-export function AppShell({ children, businessName = "AI UMKM" }: AppShellProps) {
+export function AppShell({
+  children,
+  businessName = "AI UMKM",
+}: AppShellProps) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isRouteLoading, setIsRouteLoading] = useState(false);
+
+  useEffect(() => {
+    setIsRouteLoading(false);
+  }, [pathname]);
 
   const meta = useMemo(() => {
     return (
@@ -85,18 +88,35 @@ export function AppShell({ children, businessName = "AI UMKM" }: AppShellProps) 
 
   return (
     <div className="app-shell">
+      <RouteLoadingIndicator isLoading={isRouteLoading} />
+      <GsapHoverProvider />
+
       <aside className={`sidebar ${sidebarOpen ? "is-open" : ""}`} id="sidebar">
-        <Link href="/dashboard" className="brand" onClick={() => setSidebarOpen(false)}>
+        <Link
+          href="/dashboard"
+          className="brand"
+          onClick={() => {
+            if (pathname !== "/dashboard") {
+              setIsRouteLoading(true);
+            }
+
+            setSidebarOpen(false);
+          }}
+        >
           <div className="brand-mark" aria-hidden="true">
             <Sparkles />
           </div>
+
           <div className="brand-copy">
             <span>AI UMKM</span>
             <strong>Co-Pilot</strong>
           </div>
         </Link>
 
-        <AppNavigation onNavigate={() => setSidebarOpen(false)} />
+        <AppNavigation
+          onNavigate={() => setSidebarOpen(false)}
+          onStartNavigation={() => setIsRouteLoading(true)}
+        />
 
         <div className="sidebar-footer">
           <div className="mini-card">
@@ -104,6 +124,7 @@ export function AppShell({ children, businessName = "AI UMKM" }: AppShellProps) 
               <span className="pulse" />
               Bisnis sehat
             </div>
+
             <small>
               AI membaca penjualan, stok, dan pengeluaran usaha setiap hari.
             </small>
@@ -124,8 +145,6 @@ export function AppShell({ children, businessName = "AI UMKM" }: AppShellProps) 
             <h1 id="pageHeading">{meta.title}</h1>
             <p id="pageDescription">{meta.description}</p>
           </div>
-
-          <GsapHoverProvider />
 
           <div className="toolbar">
             <button
@@ -150,7 +169,15 @@ export function AppShell({ children, businessName = "AI UMKM" }: AppShellProps) 
               <Bell />
             </button>
 
-            <Link href="/transactions/new" className="primary-button">
+            <Link
+              href="/transactions/new"
+              className="primary-button"
+              onClick={() => {
+                if (pathname !== "/transactions/new") {
+                  setIsRouteLoading(true);
+                }
+              }}
+            >
               <Plus />
               <span>Tambah Transaksi</span>
             </Link>

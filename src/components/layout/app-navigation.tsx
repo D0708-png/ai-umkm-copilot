@@ -50,9 +50,14 @@ const navItems = [
   },
 ];
 
+type AppNavigationProps = {
+  onNavigate?: () => void;
+  onStartNavigation?: () => void;
+};
+
 function isActivePath(pathname: string, href: string) {
   if (href === "/dashboard") {
-    return pathname === href;
+    return pathname === "/dashboard";
   }
 
   if (href === "/reports/profit") {
@@ -62,11 +67,10 @@ function isActivePath(pathname: string, href: string) {
   return pathname.startsWith(href);
 }
 
-type AppNavigationProps = {
-  onNavigate?: () => void;
-};
-
-export function AppNavigation({ onNavigate }: AppNavigationProps) {
+export function AppNavigation({
+  onNavigate,
+  onStartNavigation,
+}: AppNavigationProps) {
   const pathname = usePathname();
 
   return (
@@ -79,8 +83,14 @@ export function AppNavigation({ onNavigate }: AppNavigationProps) {
           <Link
             key={item.href}
             href={item.href}
-            onClick={onNavigate}
             className={`nav-item ${active ? "is-active" : ""}`}
+            onClick={() => {
+              if (!active) {
+                onStartNavigation?.();
+              }
+
+              onNavigate?.();
+            }}
           >
             <Icon />
             <span>{item.label}</span>
